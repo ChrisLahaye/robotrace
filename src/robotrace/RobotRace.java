@@ -239,40 +239,64 @@ public class RobotRace extends Base {
      */
     public void drawAxisFrame() {
 
-        // Y - GREEN
+        /*
+        Draw yellow-colored origin.
+         */
         gl.glPushMatrix();
-        gl.glColor3d(0.0, 1.0, 0.0); // red
-        gl.glRotated(90.0, 1, 0, 0); // Where XYZ is what axis to rotate, 0 = No-rotation, 1 = rotation per Angle.
-        // rotated around x
+        drawOrigin();
+        gl.glPopMatrix();
+
+        /*
+        Draw the red-colored positive X-axis.
+        Rotate 90 degrees counterclockwise (-90) around the Y-axis.
+         */
+        gl.glPushMatrix();
+        gl.glColor3d(1.0, 0.0, 0.0); // Red (RGB)
+        // glRotated: Angle + Where XYZ is what axis to rotate, 0 = No-rotation, 1 = rotation per Angle.
+        gl.glRotated(-90.0, 0, 1, 0); // rotated around y
         drawArrow();
         gl.glPopMatrix();
 
-        // X- RED
+        /*
+        Draw the green-colored positive Y-axis.
+        Rotate 90 degrees clockwise (+90) around the X-axis.
+         */
         gl.glPushMatrix();
-        gl.glColor3d(1.0, 0.0, 0.0); // green
-        gl.glRotated(-90.0, 0, 1, 0); // Where XYZ is what axis to rotate, 0 = No-rotation, 1 = rotation per Angle.
-        // rotated around y
+        gl.glColor3d(0.0, 1.0, 0.0); // Green (RGB)
+        // glRotated: Angle + Where XYZ is what axis to rotate, 0 = No-rotation, 1 = rotation per Angle.
+        gl.glRotated(90.0, 1, 0, 0); // rotated around x
         drawArrow();
         gl.glPopMatrix();
 
-        // Z - BLUE
+        /*
+        Draw the blue-colored Z-axis.
+         */
         gl.glPushMatrix();
-        gl.glColor3d(0.0, 0.0, 1.0); // blue
+        gl.glColor3d(0.0, 0.0, 1.0); // Blue (RGB)
         drawArrow(); // z
-
         gl.glPopMatrix();
 
 
+    }
+
+    /*
+     * Todo: change to sphere.
+     */
+    private void drawOrigin() {
+        gl.glColor3d(1.0,1.0,0.0); // Yellow (Red + Green - RGB)
+        gl.glScaled(0.1, 0.1, 0.1);
+        glut.glutSolidCube(1);
     }
 
     /**
      * Draws a single arrow
      */
     public void drawArrow() {
-
+        gl.glPushMatrix();
         gl.glTranslated(-0.05, -0.05, -0.5);
-        gl.glScaled(0.1, 0.1, 1);
+        gl.glScaled(0.1, 0.1, 1.0);
         glut.glutSolidCube(1);
+        gl.glPopMatrix();
     }
  
     /**
