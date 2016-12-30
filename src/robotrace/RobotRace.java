@@ -1,8 +1,13 @@
 package robotrace;
 
+import com.jogamp.graph.geom.SVertex;
+import com.jogamp.graph.geom.Vertex;
+import com.jogamp.opengl.math.VectorUtil;
+
+import java.awt.*;
+
 import static javax.media.opengl.GL2.*;
 import static robotrace.ShaderPrograms.*;
-import static robotrace.Textures.*;
 
 /**
  * Handles all of the RobotRace graphics functionality,
@@ -232,71 +237,157 @@ public class RobotRace extends Base {
         
         
     }
-    
-    /**
-     * Draws the x-axis (red), y-axis (green), z-axis (blue),
-     * and origin (yellow).
-     */
+
     public void drawAxisFrame() {
-
-        /*
-        Draw yellow-colored origin.
-         */
+        // Push new matrix with axis frame drawings
         gl.glPushMatrix();
-        drawOrigin();
+
+        // Specify positive x,y and z vertices (use jogamp's SVertex)
+        // https://jogamp.org/deployment/jogamp-next/javadoc/jogl/javadoc/index.html?com/jogamp/graph/geom/SVertex.html
+        Vertex posX = new SVertex(1,0,0,true); // origin.x + 1.0 (+X)
+        Vertex posY = new SVertex(0,1,0,true); // origin.y + 1.0 (+Y)
+        Vertex posZ = new SVertex(0,0,1,true); // origin.z + 1.0 (+Z)
+
+        /* Draw axis cones - since we only want to rotate & translate the cones we pop and push the matrix every time */
+        drawAxisCone(posX, Color.RED);
         gl.glPopMatrix();
 
-        /*
-        Draw the red-colored positive X-axis.
-        Rotate 90 degrees counterclockwise (-90) around the Y-axis.
-         */
         gl.glPushMatrix();
-        gl.glColor3d(1.0, 0.0, 0.0); // Red (RGB)
-        // glRotated: Angle + Where XYZ is what axis to rotate, 0 = No-rotation, 1 = rotation per Angle.
-        gl.glRotated(-90.0, 0, 1, 0); // rotated around y
-        drawArrow();
+        drawAxisCone(posY, Color.GREEN);
         gl.glPopMatrix();
 
-        /*
-        Draw the green-colored positive Y-axis.
-        Rotate 90 degrees clockwise (+90) around the X-axis.
-         */
         gl.glPushMatrix();
-        gl.glColor3d(0.0, 1.0, 0.0); // Green (RGB)
-        // glRotated: Angle + Where XYZ is what axis to rotate, 0 = No-rotation, 1 = rotation per Angle.
-        gl.glRotated(90.0, 1, 0, 0); // rotated around x
-        drawArrow();
+        drawAxisCone(posZ, Color.BLUE);
         gl.glPopMatrix();
 
-        /*
-        Draw the blue-colored Z-axis.
-         */
         gl.glPushMatrix();
-        gl.glColor3d(0.0, 0.0, 1.0); // Blue (RGB)
-        drawArrow(); // z
+
+        /* (Commented out) Draw arrow heads instead of cones */
+//        drawAxisArrowHeads(posX, 0.1f, 0.1f, Color.RED);
+//        drawAxisArrowHeads(posY, 0.1f, 0.1f, Color.GREEN);
+//        drawAxisArrowHeads(posZ, 0.1f, 0.1f, Color.BLUE);
+
+        drawOriginSphere(); // draw yellow sphere centered around origin
+
+        // Set line width to 2.5 to improve visibility of axis lines
+        gl.glLineWidth(2.5f);
+
+        /*
+         * Start drawing lines between specified vertices, GL_LINES treats every pair of vertices as a line segment.
+         * Vertices 2n - 1 and 2n define a line n.
+         * N / 2 lines are drawn where N is the total amount of vertices specified.
+         *
+         * Note on 3fv: second parameter i specifies offset index for xyz, e.g. x = i, y = i+1, z = i+2.
+         */
+        gl.glBegin(GL_LINES);
+
+        gl.glColor3fv(Color.RED.getRGBColorComponents(null), 0); // red (Rgb)
+
+        // Specify vertices from origin to x + 1.0 (Positive X-Axis - +X)
+        gl.glVertex3fv(VectorUtil.VEC3_ZERO, 0); // origin vertex (0,0,0) - use constant VEC3_ZERO
+        gl.glVertex3fv(posX.getCoord(), 0);
+
+        // Color specified Y-axis lines (+Y and -Y) green
+        gl.glColor3fv(Color.GREEN.getRGBComponents(null), 0); // green (rGb)
+
+        // Specify vertices from origin to y + 1.0 (Positive Y-Axis - +Y)
+        gl.glVertex3f(0,0,0); // origin vertex (0,0,0) - use constant VEC3_ZERO
+        gl.glVertex3fv(posY.getCoord(), 0);
+
+        // Color specified Z-axis lines (+Z and -Z) blue
+        gl.glColor3fv(Color.BLUE.getRGBComponents(null),0); // blue (rgB)
+
+        // Specify vertices from origin to z + 1.0 (Positive Z-Axis - +Z)
+        gl.glVertex3f(0,0,0); // origin vertex (0,0,0) - use constant VEC3_ZERO
+        gl.glVertex3fv(posZ.getCoord(), 0);
+
+        // Ending delimiter for line vertices specification
+        gl.glEnd();
+
+        // Pop current matrix before drawing lines
         gl.glPopMatrix();
-
-
-    }
-
-    /*
-     * Todo: change to sphere.
-     */
-    private void drawOrigin() {
-        gl.glColor3d(1.0,1.0,0.0); // Yellow (Red + Green - RGB)
-        gl.glScaled(0.1, 0.1, 0.1);
-        glut.glutSolidCube(1);
     }
 
     /**
-     * Draws a single arrow
+     * Draws the origin-sphere, a solid yellow sphere centered around the origin of the axis-frame.
      */
-    public void drawArrow() {
-        gl.glPushMatrix();
-        gl.glTranslated(-0.05, -0.05, -0.5);
-        gl.glScaled(0.1, 0.1, 1.0);
-        glut.glutSolidCube(1);
-        gl.glPopMatrix();
+    private void drawOriginSphere() {
+        // Color origin sphere yellow
+        gl.glColor3d(1.0,1.0,0.0); // yellow (RGb)
+
+        /*
+         * Draw a sphere centered around the origin with radius 0.1 (10% of the axis frame) and 10 slices (latitude)
+         * + stacks (longitude).
+         */
+        glut.glutSolidSphere(0.1, 10, 10);
+
+    }
+
+    public void drawAxisCone(Vertex axisEndPoint, Color color) {
+        // Color cone to given color
+        gl.glColor3fv(color.getRGBComponents(null), 0);
+
+        // Translate cone from origin to axisEndPoint
+        gl.glTranslatef(axisEndPoint.getX(), axisEndPoint.getY(), axisEndPoint.getZ());
+
+        // Rotate cone 90 degrees around correct axis to point it in the axis direction
+        if(axisEndPoint.getX() == 1) {
+            gl.glRotatef(90, 0, 1, 0); // Rotate 90 degrees counter clockwise around Y-axis
+        } else if(axisEndPoint.getY() == 1) {
+            gl.glRotatef(-90, 1, 0, 0); // Rotate 90 degrees clockwise around X-axis
+        }
+
+        // Cone -> base, height, slices (latitude), stacks (longitude)
+        glut.glutSolidCone(0.03, 0.15,10, 10);
+    }
+
+    /**
+     * Draws arrow head from given axisEndPoint with given length & width in given (rgb) color.
+     *
+     * @param axisEndPoint
+     * @param length
+     * @param width
+     * @param color
+     */
+    public void drawAxisArrowHeads(Vertex axisEndPoint, float length, float width, Color color) {
+        gl.glColor3fv(color.getRGBComponents(null), 0);
+
+        gl.glBegin(GL_LINES);
+
+        Vertex V = new SVertex(); // Vector V
+        Vertex U = new SVertex(); // Vector U perpendicular to V
+        Vertex lengthVec = new SVertex(); // V scaled to length
+        Vertex M = new SVertex(); // Vertex M
+
+        Vertex widthVec = new SVertex(); // width vector
+        Vertex C = new SVertex(); // left vertex of arrow head C (to the left of M)
+        Vertex D = new SVertex(); // right vertex of arrow head D (to the right of M)
+
+        VectorUtil.subVec3(V.getCoord(), VectorUtil.VEC3_ZERO, axisEndPoint.getCoord());
+        VectorUtil.normalizeVec3(V.getCoord());
+
+        if(axisEndPoint.getX() == 1) {
+            U.setCoord(0, 0, 1); // perpendicular vector U will be (0, 0, 1) - will be perpendicular to X
+        } else {
+            U.setCoord(1,0,0); // perpendicular vector U will be (1, 0, 0) - will be perpendicular to Y & Z
+        }
+
+        VectorUtil.scaleVec3(lengthVec.getCoord(), V.getCoord(), length); // lengthVec = length * V
+        VectorUtil.addVec3(M.getCoord(), axisEndPoint.getCoord(), lengthVec.getCoord()); // M = axisEndPoint + lengthVec
+
+        VectorUtil.scaleVec3(widthVec.getCoord(), U.getCoord(), (width/2.0f)); // (width/2) * U
+
+        VectorUtil.subVec3(C.getCoord(), M.getCoord(), widthVec.getCoord()); // C = M - widthVec
+        VectorUtil.addVec3(D.getCoord(), M.getCoord(), widthVec.getCoord()); // D = M + widthVec
+
+        gl.glVertex3d(axisEndPoint.getX(), axisEndPoint.getY(), axisEndPoint.getZ());
+        gl.glVertex3fv(C.getCoord(), 0); // second parameter i is offset index for xyz in float array (x = i, y= i+1, z=i+2)
+
+        gl.glVertex3d(axisEndPoint.getX(), axisEndPoint.getY(), axisEndPoint.getZ());
+        gl.glVertex3fv(D.getCoord(), 0); // second parameter i is offset index for xyz in float array (x = i, y= i+1, z=i+2)
+
+        gl.glEnd();
+
     }
  
     /**
