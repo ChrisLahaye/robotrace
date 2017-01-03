@@ -239,37 +239,31 @@ public class RobotRace extends Base {
     }
 
     public void drawAxisFrame() {
-        // Push new matrix with axis frame drawings
-        gl.glPushMatrix();
-
         // Specify positive x,y and z vertices (use jogamp's SVertex)
         // https://jogamp.org/deployment/jogamp-next/javadoc/jogl/javadoc/index.html?com/jogamp/graph/geom/SVertex.html
+        Vertex originVertex = new SVertex(0,0,0,true);
         Vertex posX = new SVertex(1,0,0,true); // origin.x + 1.0 (+X)
         Vertex posY = new SVertex(0,1,0,true); // origin.y + 1.0 (+Y)
         Vertex posZ = new SVertex(0,0,1,true); // origin.z + 1.0 (+Z)
 
-        /* Draw axis cones - since we only want to rotate & translate the cones we pop and push the matrix every time */
-        drawAxisCone(posX, Color.RED);
-        gl.glPopMatrix();
-
-        gl.glPushMatrix();
-        drawAxisCone(posY, Color.GREEN);
-        gl.glPopMatrix();
-
-        gl.glPushMatrix();
-        drawAxisCone(posZ, Color.BLUE);
-        gl.glPopMatrix();
-
-        gl.glPushMatrix();
-
-        /* (Commented out) Draw arrow heads instead of cones */
-//        drawAxisArrowHeads(posX, 0.1f, 0.1f, Color.RED);
-//        drawAxisArrowHeads(posY, 0.1f, 0.1f, Color.GREEN);
-//        drawAxisArrowHeads(posZ, 0.1f, 0.1f, Color.BLUE);
-
+        drawArrow(originVertex, posX, Color.RED); // draw X-axis arrow
+        drawArrow(originVertex, posY, Color.GREEN); // draw Y-axis arrow
+        drawArrow(originVertex, posZ, Color.BLUE); // draw Z-axis arrow
         drawOriginSphere(); // draw yellow sphere centered around origin
+    }
 
-        // Set line width to 2.5 to improve visibility of axis lines
+    private void drawArrow(Vertex fromVertex, Vertex toVertex, Color arrowColor) {
+        gl.glPushMatrix();
+
+        // May of course be changed to drawArrowHeads() as well if preferred - pop & push matrix not needed in that case
+        drawArrowCone(toVertex, arrowColor);
+
+        // Pop matrix again since drawing the cone involves translation + rotation
+        gl.glPopMatrix(); // pop matrix again since drawing the cone involves translation + rotation
+
+        gl.glPushMatrix();
+
+        // Set line width to a better visible value
         gl.glLineWidth(2.5f);
 
         /*
@@ -278,28 +272,15 @@ public class RobotRace extends Base {
          * N / 2 lines are drawn where N is the total amount of vertices specified.
          *
          * Note on 3fv: second parameter i specifies offset index for xyz, e.g. x = i, y = i+1, z = i+2.
-         */
+        */
         gl.glBegin(GL_LINES);
 
-        gl.glColor3fv(Color.RED.getRGBColorComponents(null), 0); // red (Rgb)
+        // Color line between specified vertices based on param arrowColor (r/g/b for x/y/z in case of axis arrow)
+        gl.glColor3fv(arrowColor.getRGBColorComponents(null), 0);
 
-        // Specify vertices from origin to x + 1.0 (Positive X-Axis - +X)
-        gl.glVertex3fv(VectorUtil.VEC3_ZERO, 0); // origin vertex (0,0,0) - use constant VEC3_ZERO
-        gl.glVertex3fv(posX.getCoord(), 0);
-
-        // Color specified Y-axis lines (+Y and -Y) green
-        gl.glColor3fv(Color.GREEN.getRGBComponents(null), 0); // green (rGb)
-
-        // Specify vertices from origin to y + 1.0 (Positive Y-Axis - +Y)
-        gl.glVertex3f(0,0,0); // origin vertex (0,0,0) - use constant VEC3_ZERO
-        gl.glVertex3fv(posY.getCoord(), 0);
-
-        // Color specified Z-axis lines (+Z and -Z) blue
-        gl.glColor3fv(Color.BLUE.getRGBComponents(null),0); // blue (rgB)
-
-        // Specify vertices from origin to z + 1.0 (Positive Z-Axis - +Z)
-        gl.glVertex3f(0,0,0); // origin vertex (0,0,0) - use constant VEC3_ZERO
-        gl.glVertex3fv(posZ.getCoord(), 0);
+        // Specify vertices from fromVertex to toVertex (in case of axis arrow - from origin to (x or y or z) + 1)
+        gl.glVertex3fv(fromVertex.getCoord(), 0);
+        gl.glVertex3fv(toVertex.getCoord(), 0);
 
         // Ending delimiter for line vertices specification
         gl.glEnd();
@@ -320,10 +301,9 @@ public class RobotRace extends Base {
          * + stacks (longitude).
          */
         glut.glutSolidSphere(0.1, 10, 10);
-
     }
 
-    public void drawAxisCone(Vertex axisEndPoint, Color color) {
+    public void drawArrowCone(Vertex axisEndPoint, Color color) {
         // Color cone to given color
         gl.glColor3fv(color.getRGBComponents(null), 0);
 
