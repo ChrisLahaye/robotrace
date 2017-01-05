@@ -40,10 +40,10 @@ class Camera {
         center = gs.cnt;
         up = Vector.Z;
         eye = new Vector(
-            Math.cos(gs.theta) * Math.sin(gs.phi), 
-            Math.sin(gs.theta) * Math.sin(gs.phi), 
-            Math.cos(gs.theta)
-        ).scale(gs.vDist).add(center);     
+            Math.cos(gs.theta) * Math.cos(gs.phi),
+            Math.cos(gs.theta) * Math.sin(gs.phi),
+            Math.sin(gs.theta)
+        ).scale(gs.vDist).add(center);
     }
 
     /**
