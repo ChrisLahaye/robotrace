@@ -12,6 +12,8 @@ abstract class RaceTrack {
     
     /** The width of one lane. The total width of the track is 4 * laneWidth. */
     private final static float laneWidth = 1.22f;
+    private final static float laneWidthTotal = 4 * laneWidth;
+    private final static float parametricInterval = 1f / 50;
     
     
     
@@ -27,7 +29,22 @@ abstract class RaceTrack {
      * Draws this track, based on the control points.
      */
     public void draw(GL2 gl, GLU glu, GLUT glut) {
+        Vector P;
         
+        for(float t = 0; t < 1; t += parametricInterval) {
+            P = getPoint(t); // P.z = 1
+            
+            gl.glPushMatrix();
+            // Translate square such that:
+            //  x is centered around P.x
+            //  y is centered around P.y
+            //  z is centered around 0, so D(z) = [-1, 1]
+            gl.glTranslated(P.x, P.y, 0);
+            gl.glScaled(laneWidthTotal, laneWidthTotal, P.z * 2);
+            
+            glut.glutSolidCube(1);
+            gl.glPopMatrix(); 
+        }  
     }
     
     /**
@@ -36,7 +53,17 @@ abstract class RaceTrack {
      */
     public Vector getLanePoint(int lane, double t){
 
-        return Vector.O;
+        // Tracks are centered around P(t),
+        // so we the center of the middle lane is P(t).
+        // The track ranges from P(t) - laneWidthTotal/2 to
+        // P(t) + laneWidthTotal + 2
+        Vector P = getPoint(t);
+        
+        return new Vector(
+            P.x - laneWidthTotal/2 + (lane + 1 * laneWidth)/2,
+            P.y - laneWidthTotal/2 + (lane + 1 * laneWidth)/2,
+            P.z
+        );
 
     }
     

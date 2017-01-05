@@ -79,7 +79,8 @@ public class ShaderProgram {
         if (!infoLog.isEmpty()) {
             System.err.println("(EEE) " + infoLog);
         }
-        
+
+
         return shaderProgram;
     }
     
