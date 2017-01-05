@@ -36,7 +36,12 @@ class Robot {
      * Draws this robot (as a {@code stickfigure} if specified).
      */
     public void draw(GL2 gl, GLU glu, GLUT glut, float tAnim) {
+        Textures.head.bind(gl);
+        gl.glPushMatrix();
         
+        gl.glScaled(2, 1, 4);
+        glut.glutSolidCube(1);
+        gl.glPopMatrix();
     }
     
     
