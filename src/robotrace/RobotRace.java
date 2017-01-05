@@ -232,6 +232,8 @@ public class RobotRace extends Base {
             gl.glPopMatrix();
         }
    
+        robots[0].draw(gl, glu, glut, 0);
+        
         // Draw the race track.
         gl.glUseProgram(trackShader.getProgramID());
         raceTracks[gs.trackNr].draw(gl, glu, glut);
