@@ -36,9 +36,9 @@ class Robot {
      * Draws this robot (as a {@code stickfigure} if specified).
      */
     public void draw(GL2 gl, GLU glu, GLUT glut, float tAnim) {
-        gl.glActiveTexture(GL_TEXTURE0);
-        Textures.head.bind(gl);
-        ShaderPrograms.robotShader.setUniform(gl, "useTexture", 0);
+//        gl.glActiveTexture(GL_TEXTURE0);
+//        Textures.head.bind(gl);
+//        ShaderPrograms.robotShader.setUniform(gl, "useTexture", 0);
 
         gl.glPushMatrix();
         gl.glScaled(2, 1, 4);
