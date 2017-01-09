@@ -5,6 +5,7 @@ import com.jogamp.graph.geom.Vertex;
 import com.jogamp.opengl.math.VectorUtil;
 
 import java.awt.*;
+import static javax.media.opengl.GL.GL_LINES;
 
 import static javax.media.opengl.GL2.*;
 import static robotrace.ShaderPrograms.*;
@@ -223,12 +224,38 @@ public class RobotRace extends Base {
         // Draw the (first) robot.
         gl.glUseProgram(robotShader.getProgramID());
         
-        Vector position;
+        Color[] noob = new Color[] { Color.BLACK, Color.GREEN, Color.YELLOW, Color.PINK};
+        Vector P;
+        Vector T;
         for(int i = 0; i < 4; i++) {
             gl.glPushMatrix();
-                position = raceTracks[gs.trackNr].getLanePoint(i, (i + 1) * gs.tAnim % 1);
-                gl.glTranslated(position.x, position.y, position.z);
+                
+                gl.glColor3fv(noob[i].getRGBColorComponents(null), 0);
+                P = raceTracks[gs.trackNr].getLanePoint(i, (0.1 * gs.tAnim) % 1); // 
+                T = raceTracks[gs.trackNr].getLaneTangent(i, (0.1 * gs.tAnim) % 1); 
+                gl.glTranslated(P.x, P.y, P.z + 2);
+
+                
+                
+                Vector rotationCross = Vector.X.cross(T);
+                if (rotationCross.z > 0) {
+                    gl.glRotated(Math.acos( Vector.X.dot(T) ) * (180/Math.PI),0,0,1);
+                }
+                else {
+                    gl.glRotated(-Math.acos( Vector.X.dot(T) ) * (180/Math.PI),0,0,1);
+                }
+                
+                
                 robots[i].draw(gl, glu, glut, gs.tAnim);
+            gl.glPopMatrix();
+            
+            gl.glPushMatrix();
+            // Set line width to a better visible value
+            gl.glLineWidth(2.5f);
+            gl.glBegin(GL_LINES);
+            gl.glVertex3d(P.add(T).x, P.add(T).y, 2);
+            gl.glVertex3d(P.subtract(T).x, P.subtract(T).y, 2);
+            gl.glEnd();
             gl.glPopMatrix();
         }
    
@@ -236,7 +263,7 @@ public class RobotRace extends Base {
         
         // Draw the race track.
         gl.glUseProgram(trackShader.getProgramID());
-       // raceTracks[gs.trackNr].draw(gl, glu, glut);
+        raceTracks[gs.trackNr].draw(gl, glu, glut);
         reportError("robot:");
         
         // Draw the terrain.

@@ -39,7 +39,7 @@ class Robot {
         Textures.head.bind(gl);
 
         gl.glPushMatrix();
-        gl.glScaled(2, 1, 4);
+        gl.glScaled(0.3, 1, 4);
         glut.glutSolidCube(1);
         gl.glPopMatrix();
     }
