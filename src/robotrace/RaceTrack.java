@@ -90,7 +90,12 @@ abstract class RaceTrack {
         Vector L1 = getLanePoint(lane, t);
         Vector L2 = getLanePoint(lane, t + 0.001f);
         
-        return new Vector(1, (L2.y - L1.y) / (L2.x - L1.x), 0).normalized();
+        Vector T = new Vector(1, (L2.y - L1.y) / (L2.x - L1.x), 0).normalized();
+        if (Vector.Z.cross(L1).x > 0) {
+            return T;
+        } else {
+            return T.scale(-1);
+        }
     }
     
     // Returns a point on the test track at 0 <= t < 1.

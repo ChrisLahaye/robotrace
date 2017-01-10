@@ -36,11 +36,26 @@ class Robot {
      * Draws this robot (as a {@code stickfigure} if specified).
      */
     public void draw(GL2 gl, GLU glu, GLUT glut, float tAnim) {
-        Textures.head.bind(gl);
-
+        double rotationAngle = Math.acos( Vector.X.dot(direction) ) * (180/Math.PI);
+        if (Vector.X.cross(direction).z <= 0) {
+            rotationAngle *= -1;
+        }
+            
+        //Textures.head.bind(gl);
         gl.glPushMatrix();
-        gl.glScaled(0.3, 1, 4);
-        glut.glutSolidCube(1);
+            gl.glLineWidth(2.5f);
+            gl.glColor3d(0f, 1f, 0f);
+            gl.glBegin(GL_LINES);
+                gl.glVertex3d(position.add(direction).x, position.add(direction).y, 2);
+                gl.glVertex3d(position.x, position.y, 2);
+            gl.glEnd();
+        gl.glPopMatrix();
+                
+        gl.glPushMatrix();
+            gl.glTranslated(position.x, position.y, position.z + 2);
+            gl.glRotated(rotationAngle,0,0,1);
+            gl.glScaled(0.3, 1, 4);
+            glut.glutSolidCube(1);
         gl.glPopMatrix();
     }
     
