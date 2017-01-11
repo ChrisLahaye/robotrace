@@ -37,8 +37,8 @@ class Camera {
      * Computes eye, center, and up, based on the camera's default mode.
      */
     private void setDefaultMode(GlobalState gs) {
-        center = gs.cnt;
         up = Vector.Z;
+        center = gs.cnt;
         eye = new Vector(
             Math.cos(gs.theta) * Math.cos(gs.phi),
             Math.cos(gs.theta) * Math.sin(gs.phi),
@@ -51,16 +51,22 @@ class Camera {
      * The camera should view from the perspective of the robot.
      */
     private void setFirstPersonMode(GlobalState gs, Robot focus) {
+        up = Vector.Z;
+        
         // Since focus.position x and y are the center of the robot,
         // we can not place the camera at this position, or else we are 
-        // located inside the robat. Therefor we move outside in the robots
-        // direction to get a position in front of the robot.
+        // located inside the robot. Therefor we move outside in the robots
+        // direction to get a position just in front of the robot.
         // The robot's depth is 0.3, so we need to move at least 0.15000001
         // forward to be outside its body.
-        Vector robotFront = focus.position.add(focus.direction.scale(0.2));
+        eye = focus.position.add(focus.direction.scale(0.151));
         
-        eye = new Vector(robotFront.x, robotFront.y, 3.25); // Eye height is around 3.25
-        center = eye.add(focus.direction.scale(1)); // Place the center in front of the eyes
-        up = Vector.Z;
+        // The center we locate it further away based on viewing distance,
+        // but depends on the same principle.
+        center = focus.position.add(focus.direction.scale(gs.vDist));
+        
+        // Since focus.position z is the bottom of the robot at the race track,
+        // we want to reposition the eye and center around eye height.
+        eye.z = center.z = 3.25;
     }
 }

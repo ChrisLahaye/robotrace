@@ -30,6 +30,8 @@ abstract class RaceTrack {
      * Draws this track, based on the control points.
      */
     public void draw(GL2 gl, GLU glu, GLUT glut) {
+        gl.glPushMatrix();
+        gl.glColor3f(0.1f, 0.2f, 0.3f);
         for(float t = 0; t < 1; t += parametricInterval) {
             Vector P = getPoint(t); // P.z = 1
             Vector TN = getTangent(t).cross(Vector.Z).normalized(); // Normal on tangent
@@ -42,22 +44,19 @@ abstract class RaceTrack {
             Vector Pnextout = Pnext.add(Pnexttn.scale(laneWidthTotal / 2)); // Point projected on track furthest from O
             Vector Pnextin = Pnext.subtract(Pnexttn.scale(laneWidthTotal / 2)); // Point projected on track closest to O
                  
-            gl.glBegin(GL2.GL_TRIANGLE_STRIP);
-                // https://en.wikipedia.org/wiki/Triangle_strip
-                gl.glColor3f(0.1f, 0.2f, 0.3f);
-                
+            gl.glBegin(GL2.GL_TRIANGLE_STRIP); // https://en.wikipedia.org/wiki/Triangle_strip
                 // Top horizontal triangle
                 gl.glVertex3d(Pin.x, Pin.y, 1);
                 gl.glVertex3d(Pout.x, Pout.y, 1);
                 gl.glVertex3d(Pnextin.x, Pnextin.y, 1);
                 gl.glVertex3d(Pnextout.x, Pnextout.y, 1);
-                
+
                 // Inside vertical triangle
                 gl.glVertex3d(Pin.x, Pin.y, -1);
                 gl.glVertex3d(Pin.x, Pin.y, 1);
                 gl.glVertex3d(Pnextin.x, Pnextin.y, -1);
                 gl.glVertex3d(Pnextin.x, Pnextin.y, 1);
-                
+
                 // Outside vertical triangle                
                 gl.glVertex3d(Pout.x, Pout.y, -1);
                 gl.glVertex3d(Pout.x, Pout.y, 1);
@@ -65,6 +64,7 @@ abstract class RaceTrack {
                 gl.glVertex3d(Pnextout.x, Pnextout.y, 1);
             gl.glEnd();
         }  
+        gl.glPopMatrix();
     }
     
     /**

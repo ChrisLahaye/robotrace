@@ -41,23 +41,18 @@ class Robot {
             rotationAngle *= -1;
         }
             
-        //Textures.head.bind(gl);
         gl.glPushMatrix();
+            gl.glColor3d(0f,1,1f);
             gl.glLineWidth(2.5f);
-            gl.glColor3d(0f, 1f, 0f);
             gl.glBegin(GL_LINES);
                 gl.glVertex3d(position.add(direction).x, position.add(direction).y, 2);
                 gl.glVertex3d(position.x, position.y, 2);
             gl.glEnd();
-        gl.glPopMatrix();
                 
-        gl.glPushMatrix();
             gl.glTranslated(position.x, position.y, position.z + 2);
             gl.glRotated(rotationAngle,0,0,1);
             gl.glScaled(0.3, 1, 4);
             glut.glutSolidCube(1);
         gl.glPopMatrix();
     }
-    
-    
 }

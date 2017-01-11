@@ -213,7 +213,7 @@ public class RobotRace extends Base {
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         
 
-    // Draw hierarchy example.
+        // Draw hierarchy example.
         //drawHierarchy();
         
         // Draw the axis frame.
@@ -223,15 +223,11 @@ public class RobotRace extends Base {
         
         // Draw the (first) robot.
         gl.glUseProgram(robotShader.getProgramID());
-        
-        Color[] noob = new Color[] { Color.BLACK, Color.GREEN, Color.YELLOW, Color.PINK};
+        Textures.head.bind(gl);
         for(int i = 0; i < 4; i++) {
-            gl.glPushMatrix();                
-                gl.glColor3fv(noob[i].getRGBColorComponents(null), 0);
-                robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, (0.075 * (i + 1) * gs.tAnim) % 1);
-                robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, (0.075 * (i + 1) * gs.tAnim) % 1);                
-                robots[i].draw(gl, glu, glut, gs.tAnim);
-            gl.glPopMatrix();
+            robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, (0.075 * (i + 1) * gs.tAnim) % 1);
+            robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, (0.075 * (i + 1) * gs.tAnim) % 1);                
+            robots[i].draw(gl, glu, glut, gs.tAnim);
         }
    
         robots[0].draw(gl, glu, glut, 0);
