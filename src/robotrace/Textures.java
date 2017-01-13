@@ -11,12 +11,14 @@ public class Textures {
     
     public static Texture head = null;
     public static Texture torso = null;
+    public static Texture legs = null;
     public static Texture track = null;
     public static Texture brick = null;
         
     public static void loadTextures() {
-        head = loadTexture("textures/head.jpg");
-        torso = loadTexture("textures/torso.jpg");
+        head = loadTexture("textures/bert_head.jpg");
+        torso = loadTexture("textures/suit_torso.jpg");
+        legs = loadTexture("textures/suit_pants.jpg");
         track = loadTexture("textures/track.jpg");
         brick = loadTexture("textures/brick.jpg");
     }

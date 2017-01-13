@@ -227,7 +227,7 @@ public class RobotRace extends Base {
         for(int i = 0; i < 4; i++) {
             robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, (0.0075 * (i + 1) * gs.tAnim) % 1);
             robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, (0.0075 * (i + 1) * gs.tAnim) % 1);
-            robots[i].draw(gl, glu, glut, gs.tAnim);
+            robots[i].draw(gl, glu, glut, gs.tAnim, false);
         }
    
         robots[0].draw(gl, glu, glut, 0);
