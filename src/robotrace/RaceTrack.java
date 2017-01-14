@@ -26,7 +26,7 @@ abstract class RaceTrack {
     /**
      * Draws this track, based on the control points.
      */
-    public void draw(GL2 gl, GLU glu, GLUT glut) {       
+    public void draw(GL2 gl, GLU glu, GLUT glut) {
         gl.glPushMatrix();
         gl.glColor3f(0.1f, 0.2f, 0.3f);
         for(float t = 0; t < 1; t += drawingInterval) {
@@ -60,13 +60,18 @@ abstract class RaceTrack {
                 
                 gl.glColor3f(0.1f, 0.2f, 0.3f);
             gl.glEnd();
-            
+
+            Textures.track.bind(gl);
             gl.glBegin(GL2.GL_TRIANGLE_STRIP); // https://en.wikipedia.org/wiki/Triangle_strip
                 // Top horizontal triangle
                 gl.glVertex3d(Pin.x, Pin.y, 1);
+                gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 0);
                 gl.glVertex3d(Pout.x, Pout.y, 1);
+                gl.glMultiTexCoord2d(GL_TEXTURE0, 1, 0);
                 gl.glVertex3d(Pnextin.x, Pnextin.y, 1);
+                gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 1);
                 gl.glVertex3d(Pnextout.x, Pnextout.y, 1);
+                gl.glMultiTexCoord2d(GL_TEXTURE0, 1, 1);
 
                 // Inside vertical triangle
                 gl.glVertex3d(Pin.x, Pin.y, -1);
