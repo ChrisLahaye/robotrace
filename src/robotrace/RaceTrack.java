@@ -15,7 +15,7 @@ abstract class RaceTrack {
     private final static float laneWidth = 1.22f;
     private final static float laneWidthTotal = 4 * laneWidth;
     
-    protected float parametricInterval = 1f / 100;    
+    protected float drawingInterval = 1f / 100;    
     
     /**
      * Constructor for the default track.
@@ -29,15 +29,15 @@ abstract class RaceTrack {
     public void draw(GL2 gl, GLU glu, GLUT glut) {       
         gl.glPushMatrix();
         gl.glColor3f(0.1f, 0.2f, 0.3f);
-        for(float t = 0; t < 1; t += parametricInterval) {
+        for(float t = 0; t < 1; t += drawingInterval) {
             Vector P = getPoint(t); // P.z = 1
             Vector TN = getTangent(t).cross(Vector.Z).normalized(); // Normal on tangent
             
             Vector Pout = P.add(TN.scale(laneWidthTotal / 2)); // Point projected on track furthest from O
             Vector Pin = P.subtract(TN.scale(laneWidthTotal / 2)); // Point projected on track closest to O
                
-            Vector Pnext = getPoint(t + parametricInterval);
-            Vector Pnexttn = getTangent(t + parametricInterval).cross(Vector.Z).normalized(); // Normal on tangent of next point
+            Vector Pnext = getPoint(t + drawingInterval);
+            Vector Pnexttn = getTangent(t + drawingInterval).cross(Vector.Z).normalized(); // Normal on tangent of next point
             Vector Pnextout = Pnext.add(Pnexttn.scale(laneWidthTotal / 2)); // Point projected on track furthest from O
             Vector Pnextin = Pnext.subtract(Pnexttn.scale(laneWidthTotal / 2)); // Point projected on track closest to O
             
@@ -89,12 +89,12 @@ abstract class RaceTrack {
      * Use this method to find the position of a robot on the track.
      */
     public Vector getLanePoint(int lane, double t){
-        double ratio = t / parametricInterval;
-        double tFloored = (int)ratio * parametricInterval;
+        double ratio = t / drawingInterval;
+        double tFloored = (int)ratio * drawingInterval;
         double tCompletionRatio = ratio - (int)ratio;
         
         Vector P1 = getActualLanePoint(lane, tFloored);
-        Vector P2 = getActualLanePoint(lane, tFloored + parametricInterval);
+        Vector P2 = getActualLanePoint(lane, tFloored + drawingInterval);
         Vector P12 = P2.subtract(P1);
         
         // Interpolate between P1 and P2
@@ -119,13 +119,32 @@ abstract class RaceTrack {
         // Compute tangent between two near points
         Vector L1 = getLanePoint(lane, t);
         Vector L2 = getLanePoint(lane, t + 0.001f);
-        
         Vector T = new Vector(1, (L2.y - L1.y) / (L2.x - L1.x), 0).normalized();
-        if (Vector.Z.cross(L1).x > 0) {
-            return T;
-        } else {
+        
+        // dotProduct(normalize(B-A), normalize(directionFacingOfA)) gives
+        // the cosine of the angle between where A is facing, and the vector
+        // where A faces B. Three possibilities:
+        //  1. If A faces B almost perfectly (angle close to 0), facing will be close to 1 (cos(0)).
+        //  2. If A isn't facing away from B, facing will be between 0 and 1.
+        //  3. If A is facing away from B, facing will be negative.
+        //
+        // If the tangent is facing away from the next point,
+        // then we reverse the tangent so that it points towards the next point.
+        if (L2.subtract(L1).normalized().dot(T) < 0) {
             return T.scale(-1);
         }
+        
+        // Another solution would be the following:
+        // if (Vector.Z.cross(L1).x > 0) {
+        //     return T;
+        // } else {
+        //     return T.scale(-1);
+        // }
+        // However, this does not work with concave tracks.
+        
+        return T;
+        
+
     }
     
     // Returns a point on the test track at 0 <= t < 1.

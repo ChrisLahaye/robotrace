@@ -11,7 +11,7 @@ public class BezierTrack extends RaceTrack {
     
     BezierTrack(Vector[] controlPoints) {
         this.controlPoints = controlPoints;
-        this.parametricInterval = 1f / controlPoints.length;
+        this.drawingInterval = 1f / (controlPoints.length - 1);
     }
     
     private Vector getControlPoint(int i) {
