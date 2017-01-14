@@ -19,7 +19,7 @@ public class Textures {
         head = loadTexture("textures/bert_head.jpg");
         torso = loadTexture("textures/suit_torso.jpg");
         legs = loadTexture("textures/suit_pants.jpg");
-        track = loadTexture("textures/track.jpg");
+        track = loadTexture("textures/track_run.jpg");
         brick = loadTexture("textures/brick.jpg");
     }
     

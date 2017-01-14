@@ -13,27 +13,27 @@ import static robotrace.ShaderPrograms.robotShader;
 * Represents a Robot, to be implemented according to the Assignments.
 */
 class Robot {
-    
+
     /** The position of the robot. */
     public Vector position = new Vector(0, 0, 0);
-    
+
     /** The direction in which the robot is running. */
     public Vector direction = new Vector(1, 0, 0);
 
     /** The material from which this robot is built. */
     private final Material material;
-    
-    
+
+
 
     /**
      * Constructs the robot with initial parameters.
      */
     public Robot(Material material
-            
+
     ) {
         this.material = material;
 
-        
+
     }
 
     /**
@@ -49,42 +49,115 @@ class Robot {
         if(enableOrientationLine) {
             drawOrientationLine(gl, glut, rotationAngle);
         }
-        
+
+        gl.glPushMatrix();
+
+        // Translate (move robot to track) + rotate while moving for correct orientation
+        gl.glTranslated(position.x, position.y, position.z + 1);
+        gl.glRotated(rotationAngle, 0, 0, 1);
+
         Textures.head.bind(gl);
         drawHead(gl, glut, rotationAngle);
 
         Textures.torso.bind(gl);
         drawTorso(gl, glut, rotationAngle);
-        drawArms(gl, glut, rotationAngle);
+        drawArms(gl, glut, rotationAngle, tAnim);
 
         Textures.legs.bind(gl);
-        drawLegs(gl, glut, rotationAngle);
+        drawLegs(gl, glut, rotationAngle, tAnim);
+
+        gl.glPopMatrix();
 
     }
 
-    private void drawArms(GL2 gl, GLUT glut, double rotationAngle) {
-        // left arm
+    private void drawArms(GL2 gl, GLUT glut, double rotationAngle, float tAnim) {
         gl.glPushMatrix();
 
-        gl.glTranslated(position.x, position.y, position.z + 2.01);
-        gl.glRotated(rotationAngle, 0, 0, 1);
-        gl.glScaled(0.5, 0.5, 1);
+        double armMovement = ((Math.sin(((tAnim + 1) * 10)) * (180/Math.PI)) / 4);
+
+        // LEFT ARM
+        gl.glRotated(-armMovement, 0, 1, 0);
+        gl.glTranslated(0,  0.825, 0);
+        gl.glScaled(0.5, 0.1, 0.5);
+
+        glut.glutSolidCube(1);
+
+        gl.glPopMatrix();
+
+        // LEFT SHOULDER
+        gl.glPushMatrix();
+
+        gl.glRotated(-armMovement, 0, 1, 0);
+        gl.glTranslated(0,0.5,0.375);
+        gl.glScaled(0.5, 0.75, 0.25);
+
+        glut.glutSolidCube(1);
+
+        gl.glPopMatrix();
+
+        // RIGHT ARM
+        gl.glPushMatrix();
+
+        gl.glRotated(armMovement, 0, 1, 0);
+        gl.glTranslated(0,  -0.825, 0);
+        gl.glScaled(0.5, 0.1, 0.5);
+
+        glut.glutSolidCube(1);
+
+        gl.glPopMatrix();
+
+        // RIGHT SHOULDER
+        gl.glPushMatrix();
+
+        gl.glRotated(armMovement, 0, 1, 0);
+        gl.glTranslated(0,-0.5,0.375);
+        gl.glScaled(0.5, 0.75, 0.25);
 
         glut.glutSolidCube(1);
 
         gl.glPopMatrix();
     }
 
-    private void drawLegs(GL2 gl, GLUT glut, double rotationAngle) {
+    private void drawLegs(GL2 gl, GLUT glut, double rotationAngle, float tAnim) {
         gl.glPushMatrix();
 
-        gl.glTranslated(position.x, position.y, position.z + 0.51);
-        gl.glRotated(rotationAngle, 0, 0, 1);
-        gl.glScaled(0.5, 1, 1);
+        double legMovement = ((Math.sin(((tAnim + 1) * 10)) * (180/Math.PI)) / 4);
+
+        // LEFT LEG
+
+        gl.glRotated(-legMovement, 0, 1, 0);
+        gl.glTranslated(0,0.275,-1);
+        gl.glScaled(0.5, 0.45, 1);
 
         glut.glutSolidCube(1);
 
-        // LEGS QUAD
+        // LEFT LEG TEXTURE QUAD
+        gl.glBegin(GL2.GL_TRIANGLE_STRIP);
+
+        gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 0);
+        gl.glVertex3d(0.51, -0.51, -0.5);
+        gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 1);
+        gl.glVertex3d(0.51, -0.51, 0.5);
+        gl.glMultiTexCoord2d(GL_TEXTURE0, 1, 0);
+        gl.glVertex3d(0.51, 0.51, -0.5);
+        gl.glMultiTexCoord2d(GL_TEXTURE0, 1, 1);
+        gl.glVertex3d(0.51, 0.51, 0.5);
+
+        gl.glEnd();
+
+        gl.glPopMatrix();
+
+        gl.glPushMatrix();
+
+        // RIGHT LEG
+
+        gl.glRotated(legMovement, 0, 1, 0);
+        gl.glTranslated(0,-0.275,-1);
+        gl.glScaled(0.5, 0.45, 1);
+
+        glut.glutSolidCube(1);
+
+        // RIGHT LEG TEXTURE QUAD
         gl.glBegin(GL2.GL_TRIANGLE_STRIP);
 
         gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 0);
@@ -104,9 +177,7 @@ class Robot {
     private void drawTorso(GL2 gl, GLUT glut, double rotationAngle) {
         gl.glPushMatrix();
 
-        gl.glTranslated(position.x, position.y, position.z + 2.01);
-        gl.glRotated(rotationAngle, 0, 0, 1);
-        gl.glScaled(0.5,1,2);
+        gl.glScaled(0.5,1,1);
 
         glut.glutSolidCube(1);
 
@@ -130,8 +201,7 @@ class Robot {
     private void drawHead(GL2 gl, GLUT glut, double rotationAngle) {
         gl.glPushMatrix();
 
-        gl.glTranslated(position.x, position.y, position.z + 3.51);
-        gl.glRotated(rotationAngle,0,0,1);
+        gl.glTranslated(0, 0, 1);
         gl.glScaled(0.5,1,1);
 
         glut.glutSolidCube(1);
