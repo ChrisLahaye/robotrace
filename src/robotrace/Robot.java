@@ -49,7 +49,7 @@ class Robot {
         if(enableOrientationLine) {
             drawOrientationLine(gl, glut, rotationAngle);
         }
-
+        
         Textures.head.bind(gl);
         drawHead(gl, glut, rotationAngle);
 

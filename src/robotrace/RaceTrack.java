@@ -14,22 +14,19 @@ abstract class RaceTrack {
     /** The width of one lane. The total width of the track is 4 * laneWidth. */
     private final static float laneWidth = 1.22f;
     private final static float laneWidthTotal = 4 * laneWidth;
-    private final static float parametricInterval = 1f / 100;
     
-    
+    protected float parametricInterval = 1f / 100;    
     
     /**
      * Constructor for the default track.
      */
     public RaceTrack() {
     }
-
-
     
     /**
      * Draws this track, based on the control points.
      */
-    public void draw(GL2 gl, GLU glu, GLUT glut) {
+    public void draw(GL2 gl, GLU glu, GLUT glut) {       
         gl.glPushMatrix();
         gl.glColor3f(0.1f, 0.2f, 0.3f);
         for(float t = 0; t < 1; t += parametricInterval) {
@@ -43,7 +40,27 @@ abstract class RaceTrack {
             Vector Pnexttn = getTangent(t + parametricInterval).cross(Vector.Z).normalized(); // Normal on tangent of next point
             Vector Pnextout = Pnext.add(Pnexttn.scale(laneWidthTotal / 2)); // Point projected on track furthest from O
             Vector Pnextin = Pnext.subtract(Pnexttn.scale(laneWidthTotal / 2)); // Point projected on track closest to O
-                 
+            
+            gl.glLineWidth(2.5f);
+            gl.glBegin(GL_LINES);
+                Vector T = getTangent(t);
+                gl.glColor3f(1f, 0f, 0f);
+                // Tangent
+                gl.glVertex3d(P.add(T).x, P.add(T).y, 2);
+                gl.glVertex3d(P.subtract(T).x, P.subtract(T).y, 2);
+
+                // Tangent Normal
+                gl.glVertex3d(P.x, P.y, 2);
+                gl.glVertex3d(P.add(TN).x, P.add(TN).y, 2);
+                
+                gl.glColor3f(0f, 0f, 1f);
+                // Pnext - P
+                gl.glVertex3d(P.x, P.y, 2);
+                gl.glVertex3d(Pnext.x, Pnext.y, 2);
+                
+                gl.glColor3f(0.1f, 0.2f, 0.3f);
+            gl.glEnd();
+            
             gl.glBegin(GL2.GL_TRIANGLE_STRIP); // https://en.wikipedia.org/wiki/Triangle_strip
                 // Top horizontal triangle
                 gl.glVertex3d(Pin.x, Pin.y, 1);
@@ -72,6 +89,19 @@ abstract class RaceTrack {
      * Use this method to find the position of a robot on the track.
      */
     public Vector getLanePoint(int lane, double t){
+        double ratio = t / parametricInterval;
+        double tFloored = (int)ratio * parametricInterval;
+        double tCompletionRatio = ratio - (int)ratio;
+        
+        Vector P1 = getActualLanePoint(lane, tFloored);
+        Vector P2 = getActualLanePoint(lane, tFloored + parametricInterval);
+        Vector P12 = P2.subtract(P1);
+        
+        // Interpolate between P1 and P2
+        return P1.add(P12.normalized().scale(P12.length() * tCompletionRatio));
+    }
+    
+    public Vector getActualLanePoint(int lane, double t){
         Vector P = getPoint(t);
         Vector TN = getTangent(t).cross(Vector.Z).normalized(); // Normal on tangent
         

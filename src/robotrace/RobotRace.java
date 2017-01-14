@@ -117,11 +117,17 @@ public class RobotRace extends Base {
         
         // Track 2
         float g = 3.5f;
+        
         raceTracks[1] = new BezierTrack(
-                
-            new Vector[] {}
-       
+            new Vector[] {
+                new Vector(-10, -5, 1), new Vector(-5, -10, 1), new Vector(5, -10, 1), new Vector(10, -5, 1),
+                new Vector(10, -5, 1), new Vector(20, 5, 1), new Vector(20, 20, 1), new Vector(10, 10, 1),
+                new Vector(10, 10, 1), new Vector(5, 5, 1), new Vector(-5, 5, 1), new Vector(-10, 10, 1),
+                new Vector(-10, 10, 1), new Vector(-20, 20, 1), new Vector(-20, 5, 1), new Vector(-10, -5, 1)
+            }
         );
+        
+        
         
         // Initialize the terrain
         terrain = new Terrain();
@@ -227,7 +233,7 @@ public class RobotRace extends Base {
         for(int i = 0; i < 4; i++) {
             robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, (0.0075 * (i + 1) * gs.tAnim) % 1);
             robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, (0.0075 * (i + 1) * gs.tAnim) % 1);
-            robots[i].draw(gl, glu, glut, gs.tAnim, false);
+            robots[i].draw(gl, glu, glut, gs.tAnim, true);
         }
    
         robots[0].draw(gl, glu, glut, 0);
@@ -236,7 +242,7 @@ public class RobotRace extends Base {
         gl.glUseProgram(trackShader.getProgramID());
         raceTracks[gs.trackNr].draw(gl, glu, glut);
         reportError("robot:");
-        
+                
         // Draw the terrain.
         gl.glUseProgram(terrainShader.getProgramID());
         terrain.draw(gl, glu, glut);
