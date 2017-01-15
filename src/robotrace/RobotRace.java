@@ -327,7 +327,6 @@ public class RobotRace extends Base {
         gl.glUseProgram(defaultShader.getProgramID());
         reportError("program");
 
-        
         // Draw hierarchy example.
         //drawHierarchy();
         // Background color.
@@ -374,7 +373,20 @@ public class RobotRace extends Base {
     
     public void drawTelevision() {
         //Vector P = raceTracks[gs.trackNr].getLanePoint(4, 0); 
-        //Vector T = raceTracks[gs.trackNr].getLaneTangent(4,0); 
+        //Vector T = raceTracks[gs.trackNr].getLaneTangent(4,0);
+
+        gl.glUseProgram(terrainShader.getProgramID());
+        Textures.pole.bind(gl);
+
+        gl.glPushMatrix();
+
+        gl.glTranslated(12.5, 0, -1);
+
+        // Draw pole carrying screen (bottom of pole centered at origin)
+        gl.glPushMatrix();
+        gl.glTranslated(0.5, 0, 0);
+        glut.glutSolidCylinder(0.5, 10, 10, 10);
+        gl.glPopMatrix();
 
         // Enable standard textures
         gl.glUseProgram(0);
@@ -385,8 +397,11 @@ public class RobotRace extends Base {
         gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
+        // Draw screen side one
         gl.glPushMatrix();
+            gl.glTranslated(1, 0, 11.5);
             gl.glScaled(0,8,3);
+
             gl.glBegin(GL.GL_TRIANGLE_STRIP);
 
                 gl.glTexCoord2d(0, 0);
@@ -399,8 +414,40 @@ public class RobotRace extends Base {
                 gl.glVertex3d(-0.5, 0.5, 0.5);
 
             gl.glEnd();
+
         gl.glPopMatrix();
+
+        // Draw screen side two
+        gl.glPushMatrix();
+            gl.glTranslated(0,0,11.5);
+            gl.glScaled(0,8,3);
+
+            gl.glBegin(GL.GL_TRIANGLE_STRIP);
+
+                gl.glTexCoord2d(0, 0);
+                gl.glVertex3d(-0.5, -0.5, -0.5);
+                gl.glTexCoord2d(0, 1);
+                gl.glVertex3d(-0.5, -0.5, 0.5);
+                gl.glTexCoord2d(1, 0);
+                gl.glVertex3d(-0.5, 0.5, -0.5);
+                gl.glTexCoord2d(1, 1);
+                gl.glVertex3d(-0.5, 0.5, 0.5);
+
+            gl.glEnd();
+
+        gl.glPopMatrix();
+
         gl.glDisable(GL.GL_TEXTURE_2D);
+
+        // Draw "billboard" holding the screen sides
+        gl.glPushMatrix();
+        gl.glTranslated(0.5, 0, 11.5);
+        gl.glScaled(1, 8, 3);
+        glut.glutSolidCube(1);
+        gl.glPopMatrix();
+
+        gl.glPopMatrix();
+
     }
 
     public void drawAxisFrame() {
@@ -412,12 +459,14 @@ public class RobotRace extends Base {
 
     private void drawArrow(Vector fromVertex, Vector toVertex, Color arrowColor) {
         gl.glPushMatrix();
+        gl.glScaled(2, 2, 2);
         // May of course be changed to drawArrowHeads() as well if preferred - pop & push matrix not needed in that case
         drawArrowCone(toVertex, arrowColor);
         // Pop & push matrix again since drawing the arrow cone involves rotation + translation
         gl.glPopMatrix();
 
         gl.glPushMatrix();
+        gl.glScaled(2, 2, 2);
 
         // Set line width to a better visible value
         gl.glLineWidth(2.5f);

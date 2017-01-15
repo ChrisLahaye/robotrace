@@ -14,6 +14,7 @@ public class Textures {
     public static Texture legs = null;
     public static Texture track = null;
     public static Texture brick = null;
+    public static Texture pole = null;
         
     public static void loadTextures() {
         head = loadTexture("textures/bert_head.jpg");
@@ -21,6 +22,7 @@ public class Textures {
         legs = loadTexture("textures/suit_pants.jpg");
         track = loadTexture("textures/track_run.jpg");
         brick = loadTexture("textures/brick.jpg");
+        pole = loadTexture("textures/screen_pole.jpg");
     }
     
     /**
