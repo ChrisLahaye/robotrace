@@ -245,7 +245,6 @@ public class RobotRace extends Base {
     }
     
     private void renderToTexture() {
-        System.out.println(gs.vDist);
         int camMode = gs.camMode;
         float vDist = gs.vDist;
         gs.camMode = 1;

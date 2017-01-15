@@ -71,49 +71,100 @@ class Robot {
     }
 
     private void drawArms(GL2 gl, GLUT glut, double rotationAngle, float tAnim) {
+        double armMovement = ((Math.sin(((tAnim + 1) * 10)) * (180/Math.PI)) / 3.5);
+
         gl.glPushMatrix();
 
-        double armMovement = ((Math.sin(((tAnim + 1) * 10)) * (180/Math.PI)) / 4);
-
-        // LEFT ARM
         gl.glRotated(-armMovement, 0, 1, 0);
-        gl.glTranslated(0,  0.825, 0);
-        gl.glScaled(0.5, 0.1, 0.5);
 
-        glut.glutSolidCube(1);
+        // LEFT LOWER ARM
+        gl.glPushMatrix();
+        gl.glTranslated(0,  0.7, -.11);
+        gl.glScaled(0.5, 0.325, 0.5);
+
+        gl.glRotated(112.5, 0, 1, 0); // initial rotation to orient lower arm correctly
+
+        glut.glutSolidCylinder(0.25, 0.775, 10, 10);
+
+        gl.glPopMatrix();
+
+        // LEFT ELBOW
+        gl.glPushMatrix();
+
+        gl.glTranslated(0,  0.7, -.1);
+        gl.glScaled(0.5, 0.375, 0.425);
+
+        glut.glutSolidSphere(0.25, 10, 10);
+
+        gl.glPopMatrix();
+
+        // LEFT UPPER ARM
+        gl.glPushMatrix();
+
+        gl.glTranslated(0,  0.7, -.05);
+        gl.glScaled(0.5, 0.325, 0.5);
+
+        glut.glutSolidCylinder(0.25, 0.775, 10, 10);
 
         gl.glPopMatrix();
 
         // LEFT SHOULDER
         gl.glPushMatrix();
 
-        gl.glRotated(-armMovement, 0, 1, 0);
-        gl.glTranslated(0,0.5,0.375);
-        gl.glScaled(0.5, 0.75, 0.25);
+        gl.glTranslated(0,0.375,0.325);
+        gl.glScaled(0.346, 0.855, 0.325);
 
-        glut.glutSolidCube(1);
+        glut.glutSolidSphere(0.5, 10, 10);
 
         gl.glPopMatrix();
 
-        // RIGHT ARM
+        gl.glPopMatrix();
+
         gl.glPushMatrix();
 
         gl.glRotated(armMovement, 0, 1, 0);
-        gl.glTranslated(0,  -0.825, 0);
-        gl.glScaled(0.5, 0.1, 0.5);
 
-        glut.glutSolidCube(1);
+        // RIGHT LOWER ARM
+        gl.glPushMatrix();
+
+        gl.glTranslated(0,  -0.7, -.11);
+        gl.glScaled(0.5, 0.325, 0.5);
+
+        gl.glRotated(112.5, 0, 1, 0); // initial rotation to orient lower arm correctly
+
+        glut.glutSolidCylinder(0.25, 0.775, 10, 10);
+
+        gl.glPopMatrix();
+
+        // RIGHT ELBOW
+        gl.glPushMatrix();
+
+        gl.glTranslated(0,  -0.7, -.1);
+        gl.glScaled(0.5, 0.375, 0.425);
+
+        glut.glutSolidSphere(0.25, 10, 10);
+
+        gl.glPopMatrix();
+
+        // RIGHT UPPER ARM
+        gl.glPushMatrix();
+
+        gl.glTranslated(0,  -0.7, -.05);
+        gl.glScaled(0.5, 0.325, 0.5);
+
+        glut.glutSolidCylinder(0.25, 0.775, 10, 10);
 
         gl.glPopMatrix();
 
         // RIGHT SHOULDER
         gl.glPushMatrix();
 
-        gl.glRotated(armMovement, 0, 1, 0);
-        gl.glTranslated(0,-0.5,0.375);
-        gl.glScaled(0.5, 0.75, 0.25);
+        gl.glTranslated(0,-0.375,0.325);
+        gl.glScaled(0.346, 0.855, 0.325);
 
-        glut.glutSolidCube(1);
+        glut.glutSolidSphere(0.5, 10, 10);
+
+        gl.glPopMatrix();
 
         gl.glPopMatrix();
     }
