@@ -15,7 +15,7 @@ abstract class RaceTrack {
     private final static float laneWidth = 1.22f;
     private final static float laneWidthTotal = 4 * laneWidth;
     
-    protected float drawingInterval = 1f / 100;    
+    protected float drawingInterval = 1f / 500;    
     
     /**
      * Constructor for the default track.
@@ -123,7 +123,7 @@ abstract class RaceTrack {
     public Vector getLaneTangent(int lane, double t){
         // Compute tangent between two near points
         Vector L1 = getLanePoint(lane, t);
-        Vector L2 = getLanePoint(lane, t + 0.001f);
+        Vector L2 = getLanePoint(lane, t + drawingInterval);
         Vector T = new Vector(1, (L2.y - L1.y) / (L2.x - L1.x), 0).normalized();
         
         // dotProduct(normalize(B-A), normalize(directionFacingOfA)) gives
