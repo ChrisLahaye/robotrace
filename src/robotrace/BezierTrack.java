@@ -16,7 +16,7 @@ public class BezierTrack extends RaceTrack {
     
     private Vector getControlPoint(int i) {
         if (i >= this.controlPoints.length) {
-            i = this.controlPoints.length - 1;
+            i = 0;
         }
         
         return controlPoints[i];

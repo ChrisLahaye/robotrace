@@ -96,12 +96,16 @@ abstract class RaceTrack {
     public Vector getLanePoint(int lane, double t){
         double ratio = t / drawingInterval;
         double tFloored = (int)ratio * drawingInterval;
+        double tNext = tFloored + drawingInterval;
         double tCompletionRatio = ratio - (int)ratio;
         
-        Vector P1 = getActualLanePoint(lane, tFloored);
-        Vector P2 = getActualLanePoint(lane, tFloored + drawingInterval);
-        Vector P12 = P2.subtract(P1);
+        if (tFloored >= 1) tFloored -= 1;
+        if (tNext >= 1) tNext -= 1;
         
+        Vector P1 = getActualLanePoint(lane, tFloored);
+        Vector P2 = getActualLanePoint(lane, tNext);
+        Vector P12 = P2.subtract(P1);
+   
         // Interpolate between P1 and P2
         return P1.add(P12.normalized().scale(P12.length() * tCompletionRatio));
     }
