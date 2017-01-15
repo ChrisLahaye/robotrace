@@ -1,14 +1,29 @@
 package robotrace;
 
-import com.jogamp.graph.geom.SVertex;
-import com.jogamp.graph.geom.Vertex;
-import com.jogamp.opengl.math.VectorUtil;
 
 import java.awt.*;
 import static javax.media.opengl.GL.GL_LINES;
 
 import static javax.media.opengl.GL2.*;
 import static robotrace.ShaderPrograms.*;
+
+import javax.media.opengl.GL;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import static javax.media.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_DEPTH_BUFFER_BIT;
+import static javax.media.opengl.GL.GL_FRONT_AND_BACK;
+import static javax.media.opengl.GL.GL_NEAREST;
+import static javax.media.opengl.GL.GL_TEXTURE_2D;
+import static javax.media.opengl.GL.GL_TEXTURE_MAG_FILTER;
+import static javax.media.opengl.GL.GL_TEXTURE_MIN_FILTER;
+import static javax.media.opengl.GL.GL_TEXTURE_WRAP_S;
+import static javax.media.opengl.GL.GL_TEXTURE_WRAP_T;
+import javax.media.opengl.GL2ES1;
+import  javax.media.opengl.GL2GL3;
+import static javax.media.opengl.GL2GL3.GL_FILL;
+import javax.media.opengl.GLAutoDrawable;
+import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 
 /**
  * Handles all of the RobotRace graphics functionality,
@@ -76,7 +91,15 @@ public class RobotRace extends Base {
     
     /** Instance of the terrain. */
     private final Terrain terrain;
-        
+    
+    /** Render-to-texture variables. */
+    private int[] texID = {0};
+    private int[] fboID = {0};
+    private int[] depthID = {0};
+    private int fboTexSize = 512;
+    private int width = 1024;
+    private int height = 768; 
+     
     /**
      * Constructs this robot race by initializing robots,
      * camera, track, and terrain.
@@ -163,13 +186,115 @@ public class RobotRace extends Base {
         ShaderPrograms.setupShaders(gl, glu);
         reportError("shaderProgram");
         
+        initializeFob();        
     }
-   
+    
+    private void initializeFob() {
+         // create a frame buffer object
+        gl.glGenFramebuffers(1, fboID, 0);
+
+        // bind the frame buffer
+        gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, fboID[0]);
+
+        // Generate render texture
+        gl.glGenTextures (1, texID, 0);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, texID[0]);
+
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE);
+        gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE);
+        int level = 0;
+
+        ByteBuffer buffer = ByteBuffer.allocateDirect(fboTexSize * fboTexSize * 4);
+        buffer.order(ByteOrder.nativeOrder());
+
+        gl.glTexImage2D(GL.GL_TEXTURE_2D, level, GL.GL_RGBA, fboTexSize, fboTexSize, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, buffer);
+        gl.glTexEnvf(GL2ES1.GL_TEXTURE_ENV, GL2ES1.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
+
+        // Attach the texture to the fbo
+        gl.glFramebufferTexture2D(GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, GL.GL_TEXTURE_2D, texID[0], level);
+
+        // generate a renderbuffer for the depth buffer
+        gl.glGenRenderbuffers(1, depthID, 0);
+        gl.glBindRenderbuffer(GL.GL_RENDERBUFFER, depthID[0]);
+        gl.glRenderbufferStorage(GL.GL_RENDERBUFFER, GL2GL3.GL_DEPTH_COMPONENT, fboTexSize, fboTexSize);
+
+        // Attach the depth buffer to the fbo
+        gl.glFramebufferRenderbuffer(GL.GL_FRAMEBUFFER, GL.GL_DEPTH_ATTACHMENT,
+                             GL.GL_RENDERBUFFER, depthID[0]);
+
+        // unbind texture
+        gl.glBindTexture(GL.GL_TEXTURE_2D, 0);
+        // unbind fbo
+        gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0); 
+        
+        int status = gl.glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        switch(status) {
+            case GL.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: 
+                throw new RuntimeException("Framebuffer incomplete, incomplete attachment");
+            case GL.GL_FRAMEBUFFER_UNSUPPORTED:
+                throw new RuntimeException("Unsupported framebuffer format");
+            case GL.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                throw new RuntimeException("Framebuffer incomplete, missing attachment");
+            case GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+                throw new RuntimeException("Framebuffer incomplete, missing draw buffer");
+            case GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: 
+                throw new RuntimeException("Framebuffer incomplete, missing read buffer");
+        }
+    }
+    
+    private void renderToTexture() {
+        System.out.println(gs.vDist);
+        int camMode = gs.camMode;
+        float vDist = gs.vDist;
+        gs.camMode = 1;
+        gs.vDist = 17f;
+        
+        gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, fboID[0]);
+    
+        gl.glViewport(0, 0, gs.w, gs.h);
+        
+        // Set projection matrix.
+        gl.glMatrixMode(GL_PROJECTION);
+        gl.glLoadIdentity();
+
+        // Set the perspective.
+        glu.gluPerspective(45, (float)gs.w / (float)gs.h, 0.1*gs.vDist, 10*gs.vDist);
+        
+        // Set camera.
+        gl.glMatrixMode(GL_MODELVIEW);
+        gl.glLoadIdentity();
+        
+        // Add light source
+        gl.glLightfv(GL_LIGHT0, GL_POSITION, new float[]{0f,0f,0f,1f}, 0);
+               
+        // Update the view according to the camera mode and robot of interest.
+        // For camera modes 1 to 4, determine which robot to focus on.
+        camera.update(gs, robots[0]);
+        glu.gluLookAt(camera.eye.x(),    camera.eye.y(),    camera.eye.z(),
+                      camera.center.x(), camera.center.y(), camera.center.z(),
+                      camera.up.x(),     camera.up.y(),     camera.up.z());
+        
+        drawScene();
+        
+        // unbind frame buffer
+        gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0);
+        
+        gs.camMode = camMode;
+        gs.vDist = vDist;
+    }
+    
+    
+    
+ 
     /**
      * Configures the viewing transform.
      */
     @Override
     public void setView() {
+        renderToTexture();
+        
         // Select part of window.
         gl.glViewport(0, 0, gs.w, gs.h);
         
@@ -200,10 +325,12 @@ public class RobotRace extends Base {
      */
     @Override
     public void drawScene() {
-        
         gl.glUseProgram(defaultShader.getProgramID());
         reportError("program");
+
         
+        // Draw hierarchy example.
+        //drawHierarchy();
         // Background color.
         gl.glClearColor(1f, 1f, 1f, 0f);
         
@@ -218,9 +345,7 @@ public class RobotRace extends Base {
         
         gl.glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         
-
-        // Draw hierarchy example.
-        //drawHierarchy();
+        drawTelevision();
         
         // Draw the axis frame.
         if (gs.showAxes) {
@@ -229,8 +354,7 @@ public class RobotRace extends Base {
         
         // Draw the (first) robot.
         gl.glUseProgram(robotShader.getProgramID());
-
-        for(int i = 0; i < 1; i++) {
+        for(int i = 0; i < 4; i++) {
             robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, (0.1 * (i + 1) * gs.tAnim) % 1);
             robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, (0.1 * (i + 1) * gs.tAnim) % 1);
             robots[i].draw(gl, glu, glut, gs.tAnim, true);
@@ -247,8 +371,37 @@ public class RobotRace extends Base {
         gl.glUseProgram(terrainShader.getProgramID());
         terrain.draw(gl, glu, glut);
         reportError("terrain:");
-        
-        
+    }
+    
+    public void drawTelevision() {
+        //Vector P = raceTracks[gs.trackNr].getLanePoint(4, 0); 
+        //Vector T = raceTracks[gs.trackNr].getLaneTangent(4,0); 
+
+        // Enable standard textures
+        gl.glUseProgram(0);
+        gl.glEnable(GL.GL_TEXTURE_2D);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, texID[0]);
+        gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+        gl.glPushMatrix();
+            gl.glScaled(0,8,3);
+            gl.glBegin(GL.GL_TRIANGLE_STRIP);
+
+                gl.glTexCoord2d(0, 0);
+                gl.glVertex3d(-0.5, -0.5, -0.5);
+                gl.glTexCoord2d(0, 1);
+                gl.glVertex3d(-0.5, -0.5, 0.5);
+                gl.glTexCoord2d(1, 0);
+                gl.glVertex3d(-0.5, 0.5, -0.5);
+                gl.glTexCoord2d(1, 1);
+                gl.glVertex3d(-0.5, 0.5, 0.5);
+
+            gl.glEnd();
+        gl.glPopMatrix();
+        gl.glDisable(GL.GL_TEXTURE_2D);
     }
 
     public void drawAxisFrame() {
