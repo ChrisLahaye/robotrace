@@ -3,13 +3,14 @@ package robotrace;
 import com.jogamp.opengl.util.gl2.GLUT;
 import javax.media.opengl.GL2;
 import javax.media.opengl.glu.GLU;
+import static robotrace.ShaderPrograms.waterShader;
 
 /**
  * Represents the terrain, to be implemented according to the Assignments.
  */
 class Terrain {
 
-    private final int fragments = 40;
+    private final int fragments = 20;
     private final int minX = -20;
     private final int maxX = 20;
     private final int minY = -20;
@@ -18,15 +19,21 @@ class Terrain {
     private float xInterval;
     private float yInterval;
     
-    public Terrain() {
+    private GlobalState gs;
+    
+    public Terrain(GlobalState gs) {
         xInterval = (maxX - minX) / fragments;
         yInterval = (maxY - minY) / fragments;
+        
+        this.gs = gs;
     }
 
     /**
      * Draws the terrain.
      */
     public void draw(GL2 gl, GLU glu, GLUT glut) {
+
+        
         int xStart = minX;
         int yStart = minY;
         for(int fragment = 0; fragment < fragments; fragment++) {
@@ -46,6 +53,22 @@ class Terrain {
             xStart = minX;
             yStart += yInterval;
         }
+            
+        gl.glUseProgram(0);
+        //gl.glUseProgram(waterShader.getProgramID());
+        //waterShader.setUniform(gl, "time", gs.tAnim);
+        gl.glEnable(GL2.GL_BLEND);
+        gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glPushMatrix();
+            gl.glBegin(GL2.GL_TRIANGLE_STRIP);
+                gl.glColor4f(.5f, .5f, .5f, 0.5f);
+                gl.glVertex3d(minX, minY, 0);
+                gl.glVertex3d(minX, maxY, 0);
+                gl.glVertex3d(maxX, minY, 0);
+                gl.glVertex3d(maxX, maxY, 0);
+            gl.glEnd();
+        gl.glPopMatrix();
+        gl.glDisable(GL2.GL_BLEND);
     }
     
 }
