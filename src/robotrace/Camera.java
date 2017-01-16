@@ -42,7 +42,7 @@ class Camera {
             Math.cos(gs.theta) * Math.cos(gs.phi),
             Math.sin(gs.theta) * Math.cos(gs.phi),
             Math.sin(gs.phi)
-        ).scale(gs.vDist);
+        ).scale(gs.vDist).add(center);
         up = Vector.Z;
     }
 
@@ -68,5 +68,7 @@ class Camera {
         // Since focus.position z is the bottom of the robot at the race track,
         // we want to reposition the eye and center around eye height.
         eye.z = center.z = 3.25;
+
+        gs.vDist = 10;
     }
 }

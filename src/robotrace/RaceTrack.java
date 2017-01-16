@@ -64,14 +64,14 @@ abstract class RaceTrack {
             Textures.track.bind(gl);
             gl.glBegin(GL2.GL_TRIANGLE_STRIP); // https://en.wikipedia.org/wiki/Triangle_strip
                 // Top horizontal triangle
-                gl.glVertex3d(Pin.x, Pin.y, 1);
                 gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 0);
-                gl.glVertex3d(Pout.x, Pout.y, 1);
+                gl.glVertex3d(Pin.x, Pin.y, 1);
                 gl.glMultiTexCoord2d(GL_TEXTURE0, 1, 0);
-                gl.glVertex3d(Pnextin.x, Pnextin.y, 1);
+                gl.glVertex3d(Pout.x, Pout.y, 1);
                 gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 1);
-                gl.glVertex3d(Pnextout.x, Pnextout.y, 1);
+                gl.glVertex3d(Pnextin.x, Pnextin.y, 1);
                 gl.glMultiTexCoord2d(GL_TEXTURE0, 1, 1);
+                gl.glVertex3d(Pnextout.x, Pnextout.y, 1);
 
                 // Inside vertical triangle
                 gl.glVertex3d(Pin.x, Pin.y, -1);

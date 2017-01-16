@@ -1,8 +1,12 @@
 package robotrace;
 
 import com.jogamp.opengl.util.gl2.GLUT;
+import com.jogamp.opengl.util.glsl.ShaderState;
+import jogamp.opengl.glu.GLUquadricImpl;
+
 import javax.media.opengl.GL2;
 import javax.media.opengl.glu.GLU;
+import javax.media.opengl.glu.GLUquadric;
 import java.awt.*;
 import java.nio.FloatBuffer;
 
@@ -43,34 +47,51 @@ class Robot {
         }
 
         if(enableOrientationLine) {
-            drawOrientationLine(gl, glut, rotationAngle);
+            drawOrientationLine(gl, glut);
         }
 
         gl.glPushMatrix();
 
-        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, FloatBuffer.wrap(material.diffuse));
-        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, FloatBuffer.wrap(material.specular));
-        gl.glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material.shininess);
+        setMaterialPropertiesForRobot(gl);
 
-        // Translate (move robot to track) + rotate while moving for correct orientation
-        gl.glTranslated(position.x, position.y, position.z + 1);
-        gl.glRotated(rotationAngle, 0, 0, 1);
+        placeAndOrientRobotOnTrack(gl, rotationAngle);
 
         Textures.head.bind(gl);
-        drawHead(gl, glut, rotationAngle);
+        drawCubeHead(gl, glut);
 
         Textures.torso.bind(gl);
-        drawTorso(gl, glut, rotationAngle);
-        drawArms(gl, glut, rotationAngle, tAnim);
+        drawTorso(gl, glut);
+        drawArms(gl, glut, tAnim);
 
         Textures.legs.bind(gl);
-        drawLegs(gl, glut, rotationAngle, tAnim);
+        drawLegs(gl, glut, tAnim);
 
         gl.glPopMatrix();
 
     }
 
-    private void drawArms(GL2 gl, GLUT glut, double rotationAngle, float tAnim) {
+    /**
+     * Set correct material properties for robot based on provided material.
+     * Used for lighting calculations in shader.
+     * @param gl
+     */
+    private void setMaterialPropertiesForRobot(GL2 gl) {
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, FloatBuffer.wrap(material.diffuse));
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, FloatBuffer.wrap(material.specular));
+        gl.glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material.shininess);
+    }
+
+    /**
+     * Translate (move robot to track) and rotate for correct orientation.
+     * @param gl
+     * @param rotationAngle
+     */
+    private void placeAndOrientRobotOnTrack(GL2 gl, double rotationAngle) {
+        gl.glTranslated(position.x, position.y, position.z + 1);
+        gl.glRotated(rotationAngle, 0, 0, 1);
+    }
+
+    private void drawArms(GL2 gl, GLUT glut, float tAnim) {
         double armMovement = ((Math.sin(((tAnim + 1) * 10)) * (180/Math.PI)) / 3.5);
 
         gl.glPushMatrix();
@@ -169,13 +190,12 @@ class Robot {
         gl.glPopMatrix();
     }
 
-    private void drawLegs(GL2 gl, GLUT glut, double rotationAngle, float tAnim) {
+    private void drawLegs(GL2 gl, GLUT glut, float tAnim) {
         gl.glPushMatrix();
 
         double legMovement = ((Math.sin(((tAnim + 1) * 10)) * (180/Math.PI)) / 4);
 
         // LEFT LEG
-
         gl.glRotated(-legMovement, 0, 1, 0);
         gl.glTranslated(0,0.275,-1);
         gl.glScaled(0.5, 0.45, 1);
@@ -201,7 +221,6 @@ class Robot {
         gl.glPushMatrix();
 
         // RIGHT LEG
-
         gl.glRotated(legMovement, 0, 1, 0);
         gl.glTranslated(0,-0.275,-1);
         gl.glScaled(0.5, 0.45, 1);
@@ -225,7 +244,7 @@ class Robot {
         gl.glPopMatrix();
     }
 
-    private void drawTorso(GL2 gl, GLUT glut, double rotationAngle) {
+    private void drawTorso(GL2 gl, GLUT glut) {
         gl.glPushMatrix();
 
         gl.glScaled(0.5,1,1);
@@ -249,16 +268,34 @@ class Robot {
         gl.glPopMatrix();
     }
 
-    private void drawHead(GL2 gl, GLUT glut, double rotationAngle) {
+    private void drawSphereHead(GL2 gl, GLU glu, GLUT glut) {
+        gl.glPushMatrix();
+
+        gl.glTranslated(0, 0, 1);
+        gl.glScaled(0.25, 0.25, 0.45);
+
+        glut.glutSolidSphere(1, 25, 25);
+
+        gl.glPopMatrix();
+
+        // DRAW NECK
+        gl.glPushMatrix();
+
+        gl.glTranslated(0, 0, .6);
+        gl.glScaled(0.5, 0.325, 0.5);
+
+        glut.glutSolidCylinder(0.5, 0.775, 10, 10);
+
+        gl.glPopMatrix();
+    }
+
+    private void drawCubeHead(GL2 gl, GLUT glut) {
         gl.glPushMatrix();
 
         gl.glTranslated(0, 0, 1);
         gl.glScaled(0.5,1,1);
 
         glut.glutSolidCube(1);
-
-        // gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        // gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
         // HEAD QUAD
         gl.glBegin(GL2.GL_TRIANGLE_STRIP);
@@ -277,7 +314,7 @@ class Robot {
         gl.glPopMatrix();
     }
 
-    private void drawOrientationLine(GL2 gl, GLUT glut, double rotationAngle) {
+    private void drawOrientationLine(GL2 gl, GLUT glut) {
         gl.glPushMatrix();
 
         gl.glColor3fv(Color.RED.getRGBColorComponents(null), 0);

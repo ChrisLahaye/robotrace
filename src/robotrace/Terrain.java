@@ -15,8 +15,8 @@ class Terrain {
     private final int minY = -20;
     private final int maxY = 20;    
     
-    private int xInterval;
-    private int yInterval;
+    private float xInterval;
+    private float yInterval;
     
     public Terrain() {
         xInterval = (maxX - minX) / fragments;

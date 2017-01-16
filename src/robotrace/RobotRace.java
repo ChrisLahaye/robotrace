@@ -178,7 +178,7 @@ public class RobotRace extends Base {
 	    // Normalize normals.
         gl.glEnable(GL_NORMALIZE);
         
-	// Try to load four textures, add more if you like in the Textures class         
+	    // Try to load four textures, add more if you like in the Textures class
         Textures.loadTextures();
         reportError("reading textures");
         
@@ -186,7 +186,10 @@ public class RobotRace extends Base {
         ShaderPrograms.setupShaders(gl, glu);
         reportError("shaderProgram");
         
-        initializeFob();        
+        initializeFob();
+
+        gs.vDist = 30;
+        gs.phi = 0.2f;
     }
     
     private void initializeFob() {
@@ -352,7 +355,7 @@ public class RobotRace extends Base {
         
         // Draw the (first) robot.
         gl.glUseProgram(robotShader.getProgramID());
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < robots.length; i++) {
             robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, (0.1 * (i + 1) * gs.tAnim) % 1);
             robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, (0.1 * (i + 1) * gs.tAnim) % 1);
             robots[i].draw(gl, glu, glut, gs.tAnim, false);
@@ -542,7 +545,7 @@ public class RobotRace extends Base {
      * @param width
      * @param color
      */
-    public void drawAxisArrowHeads(Vector axisEndPoint, double length, double width, Color color) {
+    public void drawArrowHeads(Vector axisEndPoint, double length, double width, Color color) {
         gl.glColor3fv(color.getRGBComponents(null), 0);
 
         gl.glBegin(GL_LINES);
