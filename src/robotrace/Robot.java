@@ -27,13 +27,20 @@ class Robot {
     /** The material from which this robot is built. */
     private final Material material;
 
+    public int lane;
+    
+    public double nextLaneSwitchAllowed = 0;
+    
+
     /**
      * Constructs the robot with initial parameters.
      */
-    public Robot(Material material
+    public Robot(Material material, int lane
 
     ) {
         this.material = material;
+        this.lane = lane;
+
     }
 
     /**

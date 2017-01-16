@@ -110,22 +110,22 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0
-        robots[0] = new Robot(Material.GOLD
+        robots[0] = new Robot(Material.GOLD, 0
                 
         );
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER
+        robots[1] = new Robot(Material.SILVER, 1
               
         );
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD
+        robots[2] = new Robot(Material.WOOD, 2
               
         );
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE
+        robots[3] = new Robot(Material.ORANGE, 3
                 
         );
         
@@ -143,17 +143,33 @@ public class RobotRace extends Base {
         
         raceTracks[1] = new BezierTrack(
             new Vector[] {
-                new Vector(-10, -5, 1), new Vector(-5, -10, 1), new Vector(5, -10, 1), new Vector(10, -5, 1),
-                new Vector(10, -5, 1), new Vector(20, 5, 1), new Vector(20, 20, 1), new Vector(10, 10, 1),
-                new Vector(10, 10, 1), new Vector(5, 5, 1), new Vector(-5, 5, 1), new Vector(-10, 10, 1),
-                new Vector(-10, 10, 1), new Vector(-20, 20, 1), new Vector(-20, 5, 1), new Vector(-10, -5, 1)
+                
+new Vector(0d,10d,1d), new Vector(-10d,10d,1d),
+            new Vector(-10d,5d,1d), new Vector(-7d,3d,1d),
+           
+            new Vector(-7d,3d,1d), new Vector(0d,-2d,1d),
+            new Vector(-7d,-2d,1d), new Vector(-7d,-7d,1d),
+           
+            new Vector(-7d,-7d,1d), new Vector(-7d,-10d,1d),
+            new Vector(-2d,-10d,1d), new Vector(0d, -10d, 1d),
+           
+            new Vector(0d, -10d, 1d), new Vector(2d,-10d,1d),
+            new Vector(7d,-10d,1d), new Vector(7d,-7d,1d),
+           
+            new Vector(7d,-7d,1d), new Vector(7d,-2d,1d),
+            new Vector(0d,-2d,1d), new Vector(7d,2d,1d),
+           
+            new Vector(7d,2d,1d), new Vector(10d,5d,1d),
+            new Vector(10d,10d,1d), new Vector(0d,10d,1d)
+                    
+                    
             }
         );
         
         
         
         // Initialize the terrain
-        terrain = new Terrain();
+        terrain = new Terrain(gs);
     }
     
     /**
@@ -355,10 +371,32 @@ public class RobotRace extends Base {
         
         // Draw the (first) robot.
         gl.glUseProgram(robotShader.getProgramID());
-        for(int i = 0; i < robots.length; i++) {
-            robots[i].position = raceTracks[gs.trackNr].getLanePoint(i, (0.1 * (i + 1) * gs.tAnim) % 1);
-            robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(i, (0.1 * (i + 1) * gs.tAnim) % 1);
-            robots[i].draw(gl, glu, glut, gs.tAnim, false);
+        for(int i = 0; i < 4; i++) {
+            double t = (0.05 * (i + 0.2) * gs.tAnim) % 1;
+            robots[i].position = raceTracks[gs.trackNr].getLanePoint(robots[i].lane, t);
+            robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(robots[i].lane, t);
+            robots[i].draw(gl, glu, glut, gs.tAnim, true);
+            
+            boolean canMoveLeft = robots[i].lane > 0; // The robot could move to the left if it is not already on the inner most lane.
+            for(int j = 0; j < 4; j++) { // Check the positions of the other robots
+                if (i == j) continue;
+                
+                double distance = Math.abs(robots[i].position.subtract(robots[j].position).length());
+                if (distance < 4 && robots[i].lane - 1 == robots[j].lane) {
+                    // The lane on the next is already taken and a switch is not possible
+                    canMoveLeft = false;
+                }
+                
+                if (distance < 4 && robots[i].lane == robots[j].lane) {
+                    // The fastest robot must move to the right or they hit eachother
+                    int movingRobot = i > j ? i : j; // Higher number walks faster
+                    robots[movingRobot].lane++;
+                }
+            }
+            
+            if(canMoveLeft) {
+                robots[i].lane--;
+            }
         }
    
         robots[0].draw(gl, glu, glut, 0);
