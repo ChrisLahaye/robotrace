@@ -23,8 +23,6 @@ class Robot {
     /** The material from which this robot is built. */
     private final Material material;
 
-
-
     /**
      * Constructs the robot with initial parameters.
      */
@@ -32,8 +30,6 @@ class Robot {
 
     ) {
         this.material = material;
-
-
     }
 
     /**
@@ -51,6 +47,10 @@ class Robot {
         }
 
         gl.glPushMatrix();
+
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, FloatBuffer.wrap(material.diffuse));
+        gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, FloatBuffer.wrap(material.specular));
+        gl.glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material.shininess);
 
         // Translate (move robot to track) + rotate while moving for correct orientation
         gl.glTranslated(position.x, position.y, position.z + 1);
