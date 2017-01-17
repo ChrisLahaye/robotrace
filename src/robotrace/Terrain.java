@@ -3,7 +3,6 @@ package robotrace;
 import com.jogamp.opengl.util.gl2.GLUT;
 import javax.media.opengl.GL2;
 import javax.media.opengl.glu.GLU;
-import static robotrace.ShaderPrograms.waterShader;
 
 /**
  * Represents the terrain, to be implemented according to the Assignments.
