@@ -144,25 +144,52 @@ public class RobotRace extends Base {
         raceTracks[1] = new BezierTrack(
             new Vector[] {
                 
-new Vector(0d,10d,1d), new Vector(-10d,10d,1d),
-            new Vector(-10d,5d,1d), new Vector(-7d,3d,1d),
-           
-            new Vector(-7d,3d,1d), new Vector(0d,-2d,1d),
-            new Vector(-7d,-2d,1d), new Vector(-7d,-7d,1d),
-           
-            new Vector(-7d,-7d,1d), new Vector(-7d,-10d,1d),
-            new Vector(-2d,-10d,1d), new Vector(0d, -10d, 1d),
-           
-            new Vector(0d, -10d, 1d), new Vector(2d,-10d,1d),
-            new Vector(7d,-10d,1d), new Vector(7d,-7d,1d),
-           
-            new Vector(7d,-7d,1d), new Vector(7d,-2d,1d),
-            new Vector(0d,-2d,1d), new Vector(7d,2d,1d),
-           
-            new Vector(7d,2d,1d), new Vector(10d,5d,1d),
-            new Vector(10d,10d,1d), new Vector(0d,10d,1d)
                     
-                    
+new Vector(3, 16, 1),
+new Vector(-8, 17, 1),
+new Vector(-14, 14.6, 1),
+new Vector(-15.5, 10.5, 1),
+
+new Vector(-15.5, 10.5, 1), 
+new Vector(-17, 7, 1),
+new Vector(-15.5, 4, 1),
+new Vector(-14, 0.5, 1),
+
+new Vector(-14, 0.5, 1), 
+new Vector(-12.5, -2, 1),
+new Vector(-11.5, -5, 1),
+new Vector(-12, -8.5, 1),
+
+new Vector(-12, -8.5, 1),
+new Vector(-13.5, -12, 1),
+new Vector(-12.5, -14.5, 1),
+new Vector(-3.5, -17.5, 1),
+
+new Vector(-3.5, -17.5, 1),
+new Vector(1.5, -19, 1),
+new Vector(4.5, -17,1),
+new Vector(7.5, -15, 1),
+
+new Vector(7.5, -15, 1),
+new Vector(11,-11,1),
+new Vector(12, -7.5, 1),
+new Vector(10,-5, 1),
+
+new Vector(10,-5, 1),
+new Vector(7, -2.5, 1),
+new Vector(7.5, 2, 1),
+new Vector(11.5,4.5,1),
+
+new Vector(11.5,4.5,1),
+new Vector(14,6,1),
+new Vector(16,8,1),
+new Vector(14,12,1),
+
+new Vector(14,12,1),
+new Vector(12,16,1),
+new Vector(6, 17, 1),
+new Vector(3, 16, 1)
+
             }
         );
         
