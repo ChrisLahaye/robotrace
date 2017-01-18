@@ -28,7 +28,7 @@ void main() {
 
 	// R + L = 2 * (N.L)N
 	// R = 2 * (N*L)N - L
-	R = normalize(2 * dot(N, L)*N - L);  // reflected light vector
+	R = normalize(2.0 * dot(N, L)*N - L);  // reflected light vector
 
 	// output of vertex shader
 	gl_TexCoord[0] = gl_MultiTexCoord0;

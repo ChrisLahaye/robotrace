@@ -32,6 +32,7 @@ abstract class RaceTrack {
         for(float t = 0; t < 1; t += drawingInterval) {
             Vector P = getPoint(t); // P.z = 1
             Vector TN = getTangent(t).cross(Vector.Z).normalized(); // Normal on tangent
+            gl.glNormal3d(TN.x(), TN.y(), TN.z());
             
             Vector Pout = P.add(TN.scale(laneWidthTotal / 2)); // Point projected on track furthest from O
             Vector Pin = P.subtract(TN.scale(laneWidthTotal / 2)); // Point projected on track closest to O
