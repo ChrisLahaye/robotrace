@@ -55,7 +55,7 @@ public enum Material {
 
         new float[] {0.992157f, 0.513726f, 0, 1}, // todo: make it more woody - now using orange diffuse values
         new float[] {0.0225f, 0.0225f, 0.0225f, 1},
-        12.8f
+        100f
 
     );
 

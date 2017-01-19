@@ -4,6 +4,8 @@ import com.jogamp.opengl.util.gl2.GLUT;
 import static javax.media.opengl.GL.GL_LINES;
 import javax.media.opengl.GL2;
 import javax.media.opengl.glu.GLU;
+import java.nio.FloatBuffer;
+
 import static javax.media.opengl.GL2.*;
 
 /**
@@ -26,14 +28,13 @@ abstract class RaceTrack {
     /**
      * Draws this track, based on the control points.
      */
-    public void draw(GL2 gl, GLU glu, GLUT glut) {
+    public void draw(GL2 gl, GLU glu, GLUT glut, Material material) {
         gl.glPushMatrix();
         gl.glColor3f(0.1f, 0.2f, 0.3f);
         for(float t = 0; t < 1; t += drawingInterval) {
             Vector P = getPoint(t); // P.z = 1
             Vector TN = getTangent(t).cross(Vector.Z).normalized(); // Normal on tangent
-            gl.glNormal3d(TN.x(), TN.y(), TN.z());
-            
+
             Vector Pout = P.add(TN.scale(laneWidthTotal / 2)); // Point projected on track furthest from O
             Vector Pin = P.subtract(TN.scale(laneWidthTotal / 2)); // Point projected on track closest to O
                
@@ -41,6 +42,10 @@ abstract class RaceTrack {
             Vector Pnexttn = getTangent(t + drawingInterval).cross(Vector.Z).normalized(); // Normal on tangent of next point
             Vector Pnextout = Pnext.add(Pnexttn.scale(laneWidthTotal / 2)); // Point projected on track furthest from O
             Vector Pnextin = Pnext.subtract(Pnexttn.scale(laneWidthTotal / 2)); // Point projected on track closest to O
+
+            gl.glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, FloatBuffer.wrap(material.diffuse));
+            gl.glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, FloatBuffer.wrap(material.specular));
+            gl.glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, material.shininess);
 
             gl.glLineWidth(2.5f);
             gl.glBegin(GL_LINES);
@@ -53,18 +58,15 @@ abstract class RaceTrack {
                 // Tangent Normal
                 gl.glVertex3d(P.x, P.y, 2);
                 gl.glVertex3d(P.add(TN).x, P.add(TN).y, 2);
-                
-//                gl.glColor3f(0f, 0f, 1f);
-//                // Pnext - P
-//                gl.glVertex3d(P.x, P.y, 2);
-//                gl.glVertex3d(Pnext.x, Pnext.y, 2);
-//                
+
                 gl.glColor3f(0.1f, 0.2f, 0.3f);
             gl.glEnd();
 
             Textures.track.bind(gl);
             gl.glBegin(GL2.GL_TRIANGLE_STRIP); // https://en.wikipedia.org/wiki/Triangle_strip
-                // Top horizontal triangle
+            gl.glNormal3d(TN.x(), TN.y(), TN.z());
+
+            // Top horizontal triangle
                 gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 0);
                 gl.glVertex3d(Pin.x, Pin.y, 1);
                 gl.glMultiTexCoord2d(GL_TEXTURE0, 1, 0);
@@ -77,7 +79,9 @@ abstract class RaceTrack {
 
             Textures.brick.bind(gl);
             gl.glBegin(GL2.GL_TRIANGLE_STRIP); // https://en.wikipedia.org/wiki/Triangle_strip
-                // Inside vertical triangle
+            gl.glNormal3d(TN.x(), TN.y(), TN.z());
+
+            // Inside vertical triangle
                 gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 0);
                 gl.glVertex3d(Pin.x, Pin.y, -1);
                 gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 1);
@@ -89,7 +93,9 @@ abstract class RaceTrack {
             gl.glEnd();
 
             gl.glBegin(GL2.GL_TRIANGLE_STRIP);
-                // Outside vertical triangle
+            gl.glNormal3d(TN.x(), TN.y(), TN.z());
+
+            // Outside vertical triangle
                 gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 0);
                 gl.glVertex3d(Pout.x, Pout.y, -1);
                 gl.glMultiTexCoord2d(GL_TEXTURE0, 0, 1);

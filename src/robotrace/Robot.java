@@ -28,6 +28,9 @@ class Robot {
     private final Material material;
 
     public int lane;
+
+    /** Robot height, can be specified when constructing robot instance. */
+    public float height;
     
     public double nextLaneSwitchAllowed = 0;
     
@@ -35,12 +38,12 @@ class Robot {
     /**
      * Constructs the robot with initial parameters.
      */
-    public Robot(Material material, int lane
+    public Robot(Material material, int lane, float height
 
     ) {
         this.material = material;
         this.lane = lane;
-
+        this.height = height;
     }
 
     /**
@@ -59,10 +62,10 @@ class Robot {
 
         gl.glPushMatrix();
 
+        gl.glScaled(1, 1, (1.0/3.0) * height);
         setMaterialPropertiesForRobot(gl);
 
         placeAndOrientRobotOnTrack(gl, rotationAngle);
-
         Textures.head.bind(gl);
         drawCubeHead(gl, glut);
 
@@ -72,7 +75,6 @@ class Robot {
 
         Textures.legs.bind(gl);
         drawLegs(gl, glut, tAnim);
-
         gl.glPopMatrix();
 
     }
@@ -254,8 +256,7 @@ class Robot {
     private void drawTorso(GL2 gl, GLUT glut) {
         gl.glPushMatrix();
 
-        gl.glScaled(0.5,1,1);
-
+        gl.glScaled(0.5,1, 1);
         glut.glutSolidCube(1);
 
         // TORSO QUAD

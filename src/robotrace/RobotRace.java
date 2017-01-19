@@ -2,6 +2,8 @@ package robotrace;
 
 
 import java.awt.*;
+
+import static java.lang.Math.sin;
 import static javax.media.opengl.GL.GL_LINES;
 
 import static javax.media.opengl.GL2.*;
@@ -110,22 +112,22 @@ public class RobotRace extends Base {
         robots = new Robot[4];
         
         // Initialize robot 0
-        robots[0] = new Robot(Material.GOLD, 0
+        robots[0] = new Robot(Material.GOLD, 0, 6
                 
         );
         
         // Initialize robot 1
-        robots[1] = new Robot(Material.SILVER, 1
+        robots[1] = new Robot(Material.SILVER, 1, 3
               
         );
         
         // Initialize robot 2
-        robots[2] = new Robot(Material.WOOD, 2
+        robots[2] = new Robot(Material.WOOD, 2, 3
               
         );
 
         // Initialize robot 3
-        robots[3] = new Robot(Material.ORANGE, 3
+        robots[3] = new Robot(Material.ORANGE, 3, 3
                 
         );
         
@@ -370,6 +372,8 @@ new Vector(3, 16, 1)
      */
     @Override
     public void drawScene() {
+
+        robots[0].height = ((float)(sin(gs.tAnim) + 1 ) / 2 + 1) * 3;
         gl.glUseProgram(defaultShader.getProgramID());
         reportError("program");
 
@@ -430,7 +434,7 @@ new Vector(3, 16, 1)
         
         // Draw the race track.
         gl.glUseProgram(trackShader.getProgramID());
-        raceTracks[gs.trackNr].draw(gl, glu, glut);
+        raceTracks[gs.trackNr].draw(gl, glu, glut, Material.WOOD);
         reportError("robot:");
                 
         // Draw the terrain.
@@ -527,14 +531,14 @@ new Vector(3, 16, 1)
 
     private void drawArrow(Vector fromVertex, Vector toVertex, Color arrowColor) {
         gl.glPushMatrix();
-        gl.glScaled(2, 2, 2);
+        gl.glScaled(1, 1, 1);
         // May of course be changed to drawArrowHeads() as well if preferred - pop & push matrix not needed in that case
         drawArrowCone(toVertex, arrowColor);
         // Pop & push matrix again since drawing the arrow cone involves rotation + translation
         gl.glPopMatrix();
 
         gl.glPushMatrix();
-        gl.glScaled(2, 2, 2);
+        gl.glScaled(1, 1, 1);
 
         // Set line width to a better visible value
         gl.glLineWidth(2.5f);
