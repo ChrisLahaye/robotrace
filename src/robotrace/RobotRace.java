@@ -402,14 +402,14 @@ new Vector(3, 16, 1)
         
         // Draw the (first) robot.
         gl.glUseProgram(robotShader.getProgramID());
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < robots.length; i++) {
             double t = (0.05 * (i + 0.2) * gs.tAnim) % 1;
             robots[i].position = raceTracks[gs.trackNr].getLanePoint(robots[i].lane, t);
             robots[i].direction = raceTracks[gs.trackNr].getLaneTangent(robots[i].lane, t);
             robots[i].draw(gl, glu, glut, gs.tAnim, true);
             
             boolean canMoveLeft = robots[i].lane > 0; // The robot could move to the left if it is not already on the inner most lane.
-            for(int j = 0; j < 4; j++) { // Check the positions of the other robots
+            for(int j = 0; j < robots.length; j++) { // Check the positions of the other robots
                 if (i == j) continue;
                 
                 double distance = Math.abs(robots[i].position.subtract(robots[j].position).length());
@@ -429,8 +429,6 @@ new Vector(3, 16, 1)
                 robots[i].lane--;
             }
         }
-   
-        robots[0].draw(gl, glu, glut, 0);
         
         // Draw the race track.
         gl.glUseProgram(trackShader.getProgramID());

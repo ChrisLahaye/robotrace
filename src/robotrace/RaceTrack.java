@@ -17,7 +17,7 @@ abstract class RaceTrack {
     private final static float laneWidth = 1.22f;
     private final static float laneWidthTotal = 4 * laneWidth;
     
-    protected float drawingInterval = 1f / 50;    
+    protected float drawingInterval = 1f / 500;
     
     /**
      * Constructor for the default track.

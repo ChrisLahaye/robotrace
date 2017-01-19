@@ -54,8 +54,6 @@ class Terrain {
         }
             
         gl.glUseProgram(0);
-        //gl.glUseProgram(waterShader.getProgramID());
-        //waterShader.setUniform(gl, "time", gs.tAnim);
         gl.glEnable(GL2.GL_BLEND);
         gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
         gl.glPushMatrix();
